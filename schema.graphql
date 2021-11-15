@@ -112,13 +112,8 @@ type ProtocolMetric @entity {
   nextEpochRebase: BigDecimal!
   nextDistributedOhm: BigDecimal!
   treasuryDaiRiskFreeValue: BigDecimal!
-  treasuryFraxRiskFreeValue: BigDecimal!
-  treasuryLusdRiskFreeValue: BigDecimal!
   treasuryWETHRiskFreeValue: BigDecimal!
   treasuryDaiMarketValue: BigDecimal!
-  treasuryFraxMarketValue: BigDecimal!
-  treasuryLusdMarketValue: BigDecimal!
-  treasuryXsushiMarketValue: BigDecimal!
   treasuryWETHMarketValue: BigDecimal!
   currentAPY: BigDecimal!
   runway2dot5k: BigDecimal
@@ -131,9 +126,6 @@ type ProtocolMetric @entity {
   runway100k: BigDecimal
   runwayCurrent: BigDecimal
   treasuryOhmDaiPOL: BigDecimal!
-  treasuryOhmFraxPOL: BigDecimal!
-  treasuryOhmLusdPOL: BigDecimal!
-  treasuryOhmEthPOL: BigDecimal!
   holders: BigInt!
 }
 
@@ -154,9 +146,5 @@ type BondDiscount @entity {
   timestamp: BigInt!
   dai_discount: BigDecimal!
   ohmdai_discount: BigDecimal!
-  frax_discount: BigDecimal!
-  ohmfrax_discount: BigDecimal!
   eth_discount: BigDecimal!
-  lusd_discount: BigDecimal!
-  ohmlusd_discount: BigDecimal!
 }

@@ -1059,24 +1059,6 @@ export class ProtocolMetric extends Entity {
     this.set("treasuryDaiRiskFreeValue", Value.fromBigDecimal(value));
   }
 
-  get treasuryFraxRiskFreeValue(): BigDecimal {
-    let value = this.get("treasuryFraxRiskFreeValue");
-    return value.toBigDecimal();
-  }
-
-  set treasuryFraxRiskFreeValue(value: BigDecimal) {
-    this.set("treasuryFraxRiskFreeValue", Value.fromBigDecimal(value));
-  }
-
-  get treasuryLusdRiskFreeValue(): BigDecimal {
-    let value = this.get("treasuryLusdRiskFreeValue");
-    return value.toBigDecimal();
-  }
-
-  set treasuryLusdRiskFreeValue(value: BigDecimal) {
-    this.set("treasuryLusdRiskFreeValue", Value.fromBigDecimal(value));
-  }
-
   get treasuryWETHRiskFreeValue(): BigDecimal {
     let value = this.get("treasuryWETHRiskFreeValue");
     return value.toBigDecimal();
@@ -1093,33 +1075,6 @@ export class ProtocolMetric extends Entity {
 
   set treasuryDaiMarketValue(value: BigDecimal) {
     this.set("treasuryDaiMarketValue", Value.fromBigDecimal(value));
-  }
-
-  get treasuryFraxMarketValue(): BigDecimal {
-    let value = this.get("treasuryFraxMarketValue");
-    return value.toBigDecimal();
-  }
-
-  set treasuryFraxMarketValue(value: BigDecimal) {
-    this.set("treasuryFraxMarketValue", Value.fromBigDecimal(value));
-  }
-
-  get treasuryLusdMarketValue(): BigDecimal {
-    let value = this.get("treasuryLusdMarketValue");
-    return value.toBigDecimal();
-  }
-
-  set treasuryLusdMarketValue(value: BigDecimal) {
-    this.set("treasuryLusdMarketValue", Value.fromBigDecimal(value));
-  }
-
-  get treasuryXsushiMarketValue(): BigDecimal {
-    let value = this.get("treasuryXsushiMarketValue");
-    return value.toBigDecimal();
-  }
-
-  set treasuryXsushiMarketValue(value: BigDecimal) {
-    this.set("treasuryXsushiMarketValue", Value.fromBigDecimal(value));
   }
 
   get treasuryWETHMarketValue(): BigDecimal {
@@ -1300,33 +1255,6 @@ export class ProtocolMetric extends Entity {
 
   set treasuryOhmDaiPOL(value: BigDecimal) {
     this.set("treasuryOhmDaiPOL", Value.fromBigDecimal(value));
-  }
-
-  get treasuryOhmFraxPOL(): BigDecimal {
-    let value = this.get("treasuryOhmFraxPOL");
-    return value.toBigDecimal();
-  }
-
-  set treasuryOhmFraxPOL(value: BigDecimal) {
-    this.set("treasuryOhmFraxPOL", Value.fromBigDecimal(value));
-  }
-
-  get treasuryOhmLusdPOL(): BigDecimal {
-    let value = this.get("treasuryOhmLusdPOL");
-    return value.toBigDecimal();
-  }
-
-  set treasuryOhmLusdPOL(value: BigDecimal) {
-    this.set("treasuryOhmLusdPOL", Value.fromBigDecimal(value));
-  }
-
-  get treasuryOhmEthPOL(): BigDecimal {
-    let value = this.get("treasuryOhmEthPOL");
-    return value.toBigDecimal();
-  }
-
-  set treasuryOhmEthPOL(value: BigDecimal) {
-    this.set("treasuryOhmEthPOL", Value.fromBigDecimal(value));
   }
 
   get holders(): BigInt {
@@ -1518,24 +1446,6 @@ export class BondDiscount extends Entity {
     this.set("ohmdai_discount", Value.fromBigDecimal(value));
   }
 
-  get frax_discount(): BigDecimal {
-    let value = this.get("frax_discount");
-    return value.toBigDecimal();
-  }
-
-  set frax_discount(value: BigDecimal) {
-    this.set("frax_discount", Value.fromBigDecimal(value));
-  }
-
-  get ohmfrax_discount(): BigDecimal {
-    let value = this.get("ohmfrax_discount");
-    return value.toBigDecimal();
-  }
-
-  set ohmfrax_discount(value: BigDecimal) {
-    this.set("ohmfrax_discount", Value.fromBigDecimal(value));
-  }
-
   get eth_discount(): BigDecimal {
     let value = this.get("eth_discount");
     return value.toBigDecimal();
@@ -1543,23 +1453,5 @@ export class BondDiscount extends Entity {
 
   set eth_discount(value: BigDecimal) {
     this.set("eth_discount", Value.fromBigDecimal(value));
-  }
-
-  get lusd_discount(): BigDecimal {
-    let value = this.get("lusd_discount");
-    return value.toBigDecimal();
-  }
-
-  set lusd_discount(value: BigDecimal) {
-    this.set("lusd_discount", Value.fromBigDecimal(value));
-  }
-
-  get ohmlusd_discount(): BigDecimal {
-    let value = this.get("ohmlusd_discount");
-    return value.toBigDecimal();
-  }
-
-  set ohmlusd_discount(value: BigDecimal) {
-    this.set("ohmlusd_discount", Value.fromBigDecimal(value));
   }
 }

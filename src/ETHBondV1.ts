@@ -1,4 +1,5 @@
-import {  DepositCall, RedeemCall  } from '../generated/FRAXBondV1/FRAXBondV1'
+
+import {  DepositCall, RedeemCall  } from '../generated/ETHBondV1/ETHBondV1'
 import { Deposit, Redemption } from '../generated/schema'
 import { loadOrCreateTransaction } from "./utils/Transactions"
 import { loadOrCreateOHMie, updateOhmieBalance } from "./utils/OHMie"
@@ -31,7 +32,7 @@ export function handleDeposit(call: DepositCall): void {
 export function handleRedeem(call: RedeemCall): void {
   let ohmie = loadOrCreateOHMie(call.transaction.from)
   let transaction = loadOrCreateTransaction(call.transaction, call.block)
-  
+
   let redemption = Redemption.load(transaction.id)
   if (redemption==null){
     redemption = new Redemption(transaction.id)
