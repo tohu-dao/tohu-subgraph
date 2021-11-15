@@ -18,7 +18,7 @@ services:
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
       # Change next line if you want to connect to a different JSON-RPC endpoint
-      ethereum: 'fantom:https://wandering-small-flower.fantom.quiknode.pro/7a8def3089bef3d76cda9132e061cd6c82eed749/'
+      ethereum: 'fantom:${RPC_ENDPOINT}'
       GRAPH_LOG: info
   ipfs:
     image: ipfs/go-ipfs:v0.4.23
