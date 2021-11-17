@@ -1,6 +1,6 @@
 specVersion: 0.0.2
-description: Olympus DAO Subgraph
-repository: https://github.com/OlympusDAO/olympus-subgraph
+description: Exodia DAO Subgraph
+repository: https://github.com/ExodiaFinance/exodia-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -11,7 +11,7 @@ dataSources:
     source:
       address: '0x8b8d40f98a2f14e2dd972b3f2e2a2cc227d1e3be'
       abi: OlympusStakingV2
-      startBlock: 20057550
+      startBlock: 20061075
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -52,7 +52,7 @@ dataSources:
     source:
       address: '0x43CdFC01C2DEF98C595b28E72b58D2575AA05E9B'
       abi: OlympusStakingV2Helper
-      startBlock: 20057550
+      startBlock: 20061336
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -93,7 +93,7 @@ dataSources:
     source:
       address: '0xc43db16ed7b57597170b76d3aff29708bc608483'
       abi: DAIBondV3
-      startBlock: 20057550
+      startBlock: 20061547
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -134,7 +134,7 @@ dataSources:
     source:
       address: '0x5B7E66542800cA1A27402DD00f4325460553C5eb'
       abi: OHMDAIBondV4
-      startBlock: 20057550
+      startBlock: 20099251
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -175,7 +175,7 @@ dataSources:
     source:
       address: '0xd7cbA20A464C10FB03Bbc265D962ADa8e29af118'
       abi: ETHBondV1
-      startBlock: 20057550
+      startBlock: 21161524
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -215,7 +215,7 @@ dataSources:
     source:
       address: '0x8de250C65636Ef02a75e4999890c91cECd38D03D'
       abi: sOlympusERC20V2
-      startBlock: 20057550
+      startBlock: 20058992
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
