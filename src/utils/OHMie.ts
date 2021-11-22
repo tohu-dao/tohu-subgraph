@@ -34,7 +34,8 @@ export function updateOhmieBalance(ohmie: Ohmie, transaction: Transaction): void
     let ohm_contract = OlympusERC20.bind(Address.fromString(OHM_ERC20_CONTRACT))
     balance.ohmBalance = toDecimal(ohm_contract.balanceOf(Address.fromString(ohmie.id)), 9)
 
-    let stakes = balance.stakes
+    let _stakes = balance.stakes
+    let stakes: string[] = _stakes ? _stakes : []
 
     let sohm_contract_v2 = sOlympusERC20V2.bind(Address.fromString(SOHM_ERC20_CONTRACTV2))
     let sohmV2Balance = toDecimal(sohm_contract_v2.balanceOf(Address.fromString(ohmie.id)), 9)
@@ -64,7 +65,8 @@ export function updateOhmieBalance(ohmie: Ohmie, transaction: Transaction): void
     }
 
     //OHM-DAI
-    let bonds = balance.bonds
+    let _bonds = balance.bonds
+    let bonds: string[] = _bonds ? _bonds : []
 
     if(transaction.blockNumber.gt(BigInt.fromString(OHMDAISLPBOND_CONTRACT4_BLOCK))){
         let bondOHMDai_contract = OHMDAIBondV4.bind(Address.fromString(OHMDAISLPBOND_CONTRACT4))
