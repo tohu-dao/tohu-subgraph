@@ -1370,6 +1370,23 @@ export class ProtocolMetric extends Entity {
   set holders(value: BigInt) {
     this.set("holders", Value.fromBigInt(value));
   }
+
+  get index(): BigInt | null {
+    let value = this.get("index");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set index(value: BigInt | null) {
+    if (!value) {
+      this.unset("index");
+    } else {
+      this.set("index", Value.fromBigInt(<BigInt>value));
+    }
+  }
 }
 
 export class ContractInfo extends Entity {
@@ -1509,6 +1526,9 @@ export class BondDiscount extends Entity {
     this.set("dai_discount", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("ohmdai_discount", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("eth_discount", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("dai_debt_ratio", Value.fromBigInt(BigInt.zero()));
+    this.set("ohmdai_debt_ratio", Value.fromBigInt(BigInt.zero()));
+    this.set("eth_debt_ratio", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -1571,5 +1591,32 @@ export class BondDiscount extends Entity {
 
   set eth_discount(value: BigDecimal) {
     this.set("eth_discount", Value.fromBigDecimal(value));
+  }
+
+  get dai_debt_ratio(): BigInt {
+    let value = this.get("dai_debt_ratio");
+    return value!.toBigInt();
+  }
+
+  set dai_debt_ratio(value: BigInt) {
+    this.set("dai_debt_ratio", Value.fromBigInt(value));
+  }
+
+  get ohmdai_debt_ratio(): BigInt {
+    let value = this.get("ohmdai_debt_ratio");
+    return value!.toBigInt();
+  }
+
+  set ohmdai_debt_ratio(value: BigInt) {
+    this.set("ohmdai_debt_ratio", Value.fromBigInt(value));
+  }
+
+  get eth_debt_ratio(): BigInt {
+    let value = this.get("eth_debt_ratio");
+    return value!.toBigInt();
+  }
+
+  set eth_debt_ratio(value: BigInt) {
+    this.set("eth_debt_ratio", Value.fromBigInt(value));
   }
 }

@@ -127,6 +127,7 @@ type ProtocolMetric @entity {
   runwayCurrent: BigDecimal
   treasuryOhmDaiPOL: BigDecimal!
   holders: BigInt!
+  index: BigInt
 }
 
 type ContractInfo @entity {
@@ -147,4 +148,7 @@ type BondDiscount @entity {
   dai_discount: BigDecimal!
   ohmdai_discount: BigDecimal!
   eth_discount: BigDecimal!
+  dai_debt_ratio: BigInt!
+  ohmdai_debt_ratio: BigInt!
+  eth_debt_ratio: BigInt!
 }
