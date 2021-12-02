@@ -38,6 +38,10 @@ export function updateBondDiscounts(transaction: Transaction): void{
             bd.ohmdai_discount = bd.ohmdai_discount.times(BigDecimal.fromString("100"))
             log.debug("OHMDAI Discount OHM price {}  Bond Price {}  Discount {}", [ohmRate.toString(), price_call.value.toString(), bd.ohmdai_discount.toString()])
         }
+        let stdDebtRatioCall = bond.try_standardizedDebtRatio()
+        if(!stdDebtRatioCall.reverted) {
+            bd.ohmdai_debt_ratio = stdDebtRatioCall.value;
+        }
     }
 
     //DAI
@@ -50,6 +54,10 @@ export function updateBondDiscounts(transaction: Transaction): void{
             bd.dai_discount = bd.dai_discount.times(BigDecimal.fromString("100"))
             log.debug("DAI Discount OHM price {}  Bond Price {}  Discount {}", [ohmRate.toString(), price_call.value.toString(), bd.dai_discount.toString()])
         }
+        let stdDebtRatioCall = bond.try_standardizedDebtRatio()
+        if(!stdDebtRatioCall.reverted) {
+            bd.dai_debt_ratio = stdDebtRatioCall.value;
+        }
     }
 
     //ETH
@@ -61,6 +69,10 @@ export function updateBondDiscounts(transaction: Transaction): void{
             bd.eth_discount = bd.eth_discount.minus(BigDecimal.fromString("1"))
             bd.eth_discount = bd.eth_discount.times(BigDecimal.fromString("100"))
             log.debug("ETH Discount OHM price {}  Bond Price {}  Discount {}", [ohmRate.toString(), price_call.value.toString(), bd.eth_discount.toString()])
+        }
+        let stdDebtRatioCall = bond.try_standardizedDebtRatio()
+        if(!stdDebtRatioCall.reverted) {
+            bd.eth_debt_ratio = stdDebtRatioCall.value;
         }
     }
 
