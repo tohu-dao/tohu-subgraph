@@ -126,6 +126,9 @@ dataSources:
           handler: handleDeposit
         - function: redeem(address,bool)
           handler: handleRedeem
+      eventHandlers:
+        - event: BondCreated(uint256,indexed uint256,indexed uint256,indexed uint256)
+          handler: handleBondCreated
       file: ./src/DAIBondV3.ts
   #OHM DAI LP Bond Contract V4
   - kind: ethereum/contract
@@ -161,12 +164,15 @@ dataSources:
         - name: BondingCalculator
           file: ./abis/BondingCalculator.json
         - name: ERC20
-          file: ./abis/ERC20.json
+          file: ./abis/ERC20.json       
       callHandlers:
         - function: deposit(uint256,uint256,address)
           handler: handleDeposit
         - function: redeem(address,bool)
           handler: handleRedeem
+      eventHandlers:
+        - event: BondCreated(uint256,indexed uint256,indexed uint256,indexed uint256)
+          handler: handleBondCreated
       file: ./src/OHMDAIBondV4.ts
   #WETH
   - kind: ethereum/contract
@@ -202,12 +208,15 @@ dataSources:
         - name: BondingCalculator
           file: ./abis/BondingCalculator.json
         - name: ERC20
-          file: ./abis/ERC20.json
+          file: ./abis/ERC20.json    
       callHandlers:
         - function: deposit(uint256,uint256,address)
           handler: handleDeposit
         - function: redeem(address,bool)
           handler: handleRedeem
+      eventHandlers:
+        - event: BondCreated(uint256,indexed uint256,indexed uint256,indexed uint256)
+          handler: handleBondCreated
       file: ./src/ETHBondV1.ts
   - kind: ethereum/contract
     name: sOlympusERC20V2

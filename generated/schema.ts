@@ -1028,6 +1028,9 @@ export class ProtocolMetric extends Entity {
     this.set("currentAPY", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("treasuryOhmDaiPOL", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("holders", Value.fromBigInt(BigInt.zero()));
+    this.set("index", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("ohmMinted", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("ohmMintedDao", Value.fromBigDecimal(BigDecimal.zero()));
   }
 
   save(): void {
@@ -1371,21 +1374,31 @@ export class ProtocolMetric extends Entity {
     this.set("holders", Value.fromBigInt(value));
   }
 
-  get index(): BigInt | null {
+  get index(): BigDecimal {
     let value = this.get("index");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value!.toBigDecimal();
   }
 
-  set index(value: BigInt | null) {
-    if (!value) {
-      this.unset("index");
-    } else {
-      this.set("index", Value.fromBigInt(<BigInt>value));
-    }
+  set index(value: BigDecimal) {
+    this.set("index", Value.fromBigDecimal(value));
+  }
+
+  get ohmMinted(): BigDecimal {
+    let value = this.get("ohmMinted");
+    return value!.toBigDecimal();
+  }
+
+  set ohmMinted(value: BigDecimal) {
+    this.set("ohmMinted", Value.fromBigDecimal(value));
+  }
+
+  get ohmMintedDao(): BigDecimal {
+    let value = this.get("ohmMintedDao");
+    return value!.toBigDecimal();
+  }
+
+  set ohmMintedDao(value: BigDecimal) {
+    this.set("ohmMintedDao", Value.fromBigDecimal(value));
   }
 }
 
