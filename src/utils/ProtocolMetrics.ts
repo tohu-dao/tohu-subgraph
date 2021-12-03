@@ -38,7 +38,9 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric{
         protocolMetric.treasuryWETHMarketValue = BigDecimal.fromString("0")
         protocolMetric.treasuryOhmDaiPOL = BigDecimal.fromString("0")
         protocolMetric.holders = BigInt.fromI32(0)
-        protocolMetric.index = BigInt.fromI32(0)
+        protocolMetric.index = BigDecimal.fromString("0")
+        protocolMetric.ohmMinted = BigDecimal.fromString("0")
+        protocolMetric.ohmMintedDao = BigDecimal.fromString("0")
 
         protocolMetric.save()
     }
@@ -251,7 +253,7 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.holders = getHolderAux().value
 
     let indexContract = OlympusStakingV2.bind(Address.fromString(STAKING_CONTRACT_V2));
-    pm.index = indexContract.index();
+    pm.index = toDecimal(indexContract.index(), 9);
 
     pm.save()
 

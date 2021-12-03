@@ -127,7 +127,9 @@ type ProtocolMetric @entity {
   runwayCurrent: BigDecimal
   treasuryOhmDaiPOL: BigDecimal!
   holders: BigInt!
-  index: BigInt
+  index: BigDecimal!
+  ohmMinted: BigDecimal!
+  ohmMintedDao: BigDecimal!
 }
 
 type ContractInfo @entity {

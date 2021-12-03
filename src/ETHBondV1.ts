@@ -1,5 +1,5 @@
 
-import {  DepositCall, RedeemCall  } from '../generated/ETHBondV1/ETHBondV1'
+import {  BondCreated, DepositCall, RedeemCall  } from '../generated/ETHBondV1/ETHBondV1'
 import { Deposit, Redemption } from '../generated/schema'
 import { loadOrCreateTransaction } from "./utils/Transactions"
 import { loadOrCreateOHMie, updateOhmieBalance } from "./utils/OHMie"
@@ -8,6 +8,7 @@ import { ETHBOND_TOKEN } from './utils/Constants'
 import { loadOrCreateToken } from './utils/Tokens'
 import { createDailyBondRecord } from './utils/DailyBond'
 import { getETHUSDRate } from './utils/Price'
+import { loadOrCreateProtocolMetric } from './utils/ProtocolMetrics'
 
 export function handleDeposit(call: DepositCall): void {
   let ohmie = loadOrCreateOHMie(call.transaction.from)
@@ -43,4 +44,13 @@ export function handleRedeem(call: RedeemCall): void {
   redemption.timestamp = transaction.timestamp;
   redemption.save()
   updateOhmieBalance(ohmie, transaction)
+}
+
+export function handleBondCreated(event: BondCreated): void {
+  const pm = loadOrCreateProtocolMetric(event.block.timestamp);
+
+  const payout = toDecimal(event.params.payout, 9);
+
+  pm.ohmMinted = pm.ohmMinted.plus(payout);
+  pm.save()
 }
