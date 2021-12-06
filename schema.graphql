@@ -115,7 +115,7 @@ type ProtocolMetric @entity {
   treasuryWETHRiskFreeValue: BigDecimal!
   treasuryDaiMarketValue: BigDecimal!
   treasuryWETHMarketValue: BigDecimal!
-  treasuryGOhmBalance: BigDecimal!
+  treasuryGOhmBalance: BigDecimal
   currentAPY: BigDecimal!
   runway2dot5k: BigDecimal
   runway5k: BigDecimal
