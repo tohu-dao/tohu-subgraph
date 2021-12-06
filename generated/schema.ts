@@ -1194,6 +1194,23 @@ export class ProtocolMetric extends Entity {
     this.set("treasuryWETHMarketValue", Value.fromBigDecimal(value));
   }
 
+  get treasuryGOhmBalance(): BigDecimal | null {
+    let value = this.get("treasuryGOhmBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryGOhmBalance(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryGOhmBalance");
+    } else {
+      this.set("treasuryGOhmBalance", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+
   get currentAPY(): BigDecimal {
     let value = this.get("currentAPY");
     return value!.toBigDecimal();
