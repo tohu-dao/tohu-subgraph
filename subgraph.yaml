@@ -238,8 +238,6 @@ dataSources:
           file: ./abis/OlympusERC20.json
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
-        - name: SynapseERC20
-          file: ./abis/SynapseERC20.json
       callHandlers:
         - function: rebase(uint256,uint256)
           handler: rebaseFunction
