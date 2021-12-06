@@ -38,6 +38,7 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric{
         protocolMetric.treasuryWETHRiskFreeValue = BigDecimal.fromString("0")
         protocolMetric.treasuryWETHMarketValue = BigDecimal.fromString("0")
         protocolMetric.treasuryOhmDaiPOL = BigDecimal.fromString("0")
+        protocolMetric.treasuryGOhmAmount = BigDecimal.fromString("0")
         protocolMetric.holders = BigInt.fromI32(0)
         protocolMetric.index = BigDecimal.fromString("0")
         protocolMetric.ohmMinted = BigDecimal.fromString("0")
