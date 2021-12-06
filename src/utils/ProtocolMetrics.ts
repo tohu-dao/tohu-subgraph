@@ -7,12 +7,13 @@ import { UniswapV2Pair } from '../../generated/OlympusStakingV2/UniswapV2Pair';
 import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakingV2';
 
 import { ProtocolMetric, Transaction } from '../../generated/schema'
-import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT } from './Constants';
+import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT } from './Constants';
 import { dayFromTimestamp } from './Dates';
 import { toDecimal } from './Decimals';
 import { getOHMUSDRate, getDiscountedPairUSD, getPairUSD, getETHUSDRate } from './Price';
 import { getHolderAux } from './_Aux';
 import { updateBondDiscounts } from './BondDiscounts';
+import { GOhmERC20 } from '../../generated/sOlympusERC20V2/GOhmERC20';
 
 export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric{
     let dayTimestamp = dayFromTimestamp(timestamp);
@@ -86,6 +87,7 @@ class ITreasury {
     wethRfv: BigDecimal;
     wethValue: BigDecimal;
     ohmdaiPOL: BigDecimal;
+    gOhmBalance: BigDecimal;
 }
 
 function getMV_RFV(transaction: Transaction): ITreasury{
@@ -105,6 +107,8 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     let ohmdaiPOL = toDecimal(ohmdaiBalance, 18).div(ohmdaiTotalLP).times(BigDecimal.fromString("100"))
     let ohmdai_value = getPairUSD(ohmdaiBalance, SLP_EXODDAI_PAIR)
     let ohmdai_rfv = getDiscountedPairUSD(ohmdaiBalance, SLP_EXODDAI_PAIR)
+    const gOhmContract = GOhmERC20.bind(Address.fromString(GOHM_ERC20_CONTRACT))
+    const gOhmBalance = toDecimal(gOhmContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), 18)
 
     let stableValue = daiBalance
     let stableValueDecimal = toDecimal(stableValue, 18)
@@ -130,7 +134,8 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         DaiMv: ohmdai_value.plus(toDecimal(daiBalance, 18)),
         wethRfv: weth_value,
         wethValue: weth_value,
-        ohmdaiPOL
+        ohmdaiPOL,
+        gOhmBalance,
     }
 }
 
@@ -231,6 +236,7 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.treasuryWETHRiskFreeValue = mv_rfv.wethRfv
     pm.treasuryWETHMarketValue = mv_rfv.wethValue
     pm.treasuryOhmDaiPOL = mv_rfv.ohmdaiPOL
+    pm.treasuryGOhmBalance = mv_rfv.gOhmBalance
 
     // Rebase rewards, APY, rebase
     pm.nextDistributedOhm = getNextOHMRebase(transaction)

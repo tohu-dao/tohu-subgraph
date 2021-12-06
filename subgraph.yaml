@@ -1,7 +1,7 @@
 specVersion: 0.0.2
 description: Exodia DAO Subgraph
 graft:
-  base: QmRspGaUFgtVjJpukH8BmunjpuHDhfEF4qeP6JMSYbnhod
+  base: QmdCn4C5vYLouGCwW7xBa2sGTP7VF27EGvsKJKS3aF18Hx
   block: 24078827
 repository: https://github.com/ExodiaFinance/exodia-subgraph
 schema:
@@ -42,6 +42,8 @@ dataSources:
           file: ./abis/BondingCalculator.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: GOhmERC20
+          file: ./abis/GOhmERC20.json          
       callHandlers:
         - function: stake(uint256,address)
           handler: handleStake
@@ -211,7 +213,7 @@ dataSources:
         - name: BondingCalculator
           file: ./abis/BondingCalculator.json
         - name: ERC20
-          file: ./abis/ERC20.json    
+          file: ./abis/ERC20.json
       callHandlers:
         - function: deposit(uint256,uint256,address)
           handler: handleDeposit
@@ -245,23 +247,4 @@ dataSources:
         - function: rebase(uint256,uint256)
           handler: rebaseFunction
       file: ./src/sOlympusERC20V2.ts
-  - kind: ethereum/contract
-    name: GOhmERC20
-    network: fantom
-    source:
-      address: '0x8de250C65636Ef02a75e4999890c91cECd38D03D'
-      abi: GOhmERC20
-      startBlock: 24078827
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - GOhmERC20
-      abis:
-        - name: GOhmERC20
-          file: ./abis/GOhmERC20.json
-      blockHandlers:
-        - handler: handleBlock
-      file: ./src/GOhmERC20.ts
 
