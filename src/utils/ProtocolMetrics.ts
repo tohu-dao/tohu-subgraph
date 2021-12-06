@@ -108,8 +108,11 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     let ohmdai_value = getPairUSD(ohmdaiBalance, SLP_EXODDAI_PAIR)
     let ohmdai_rfv = getDiscountedPairUSD(ohmdaiBalance, SLP_EXODDAI_PAIR)
     const gOhmContract = GOhmERC20.bind(Address.fromString(GOHM_ERC20_CONTRACT))
-    const gOhmBalance = toDecimal(gOhmContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), 18)
-
+    const gOhmBalanceCall = gOhmContract.try_balanceOf(Address.fromString(TREASURY_ADDRESS_V2))
+    let gOhmBalance: BigDecimal = BigDecimal.fromString("0");
+    if (!gOhmBalanceCall.reverted) {
+        gOhmBalance = toDecimal(gOhmBalanceCall.value, 18);
+    }
     let stableValue = daiBalance
     let stableValueDecimal = toDecimal(stableValue, 18)
 
@@ -180,16 +183,16 @@ function getRunway(sOHM: BigDecimal, rfv: BigDecimal, rebase: BigDecimal): BigDe
     if(sOHM.gt(BigDecimal.fromString("0")) && rfv.gt(BigDecimal.fromString("0")) &&  rebase.gt(BigDecimal.fromString("0"))){
         let treasury_runway = Number.parseFloat(rfv.div(sOHM).toString())
 
-        let runway2dot5k_num = (Math.log(treasury_runway) / Math.log(1+0.0029438))/3;
-        let runway5k_num = (Math.log(treasury_runway) / Math.log(1+0.003579))/3;
-        let runway7dot5k_num = (Math.log(treasury_runway) / Math.log(1+0.0039507))/3;
-        let runway10k_num = (Math.log(treasury_runway) / Math.log(1+0.00421449))/3;
-        let runway20k_num = (Math.log(treasury_runway) / Math.log(1+0.00485037))/3;
-        let runway50k_num = (Math.log(treasury_runway) / Math.log(1+0.00569158))/3;
-        let runway70k_num = (Math.log(treasury_runway) / Math.log(1+0.00600065))/3;
-        let runway100k_num = (Math.log(treasury_runway) / Math.log(1+0.00632839))/3;
+        let runway2dot5k_num = (Math.log(treasury_runway) / Math.log(1+0.0029438));
+        let runway5k_num = (Math.log(treasury_runway) / Math.log(1+0.003579));
+        let runway7dot5k_num = (Math.log(treasury_runway) / Math.log(1+0.0039507));
+        let runway10k_num = (Math.log(treasury_runway) / Math.log(1+0.00421449));
+        let runway20k_num = (Math.log(treasury_runway) / Math.log(1+0.00485037));
+        let runway50k_num = (Math.log(treasury_runway) / Math.log(1+0.00569158));
+        let runway70k_num = (Math.log(treasury_runway) / Math.log(1+0.00600065));
+        let runway100k_num = (Math.log(treasury_runway) / Math.log(1+0.00632839));
         let nextEpochRebase_number = Number.parseFloat(rebase.toString())/100
-        let runwayCurrent_num = (Math.log(treasury_runway) / Math.log(1+nextEpochRebase_number))/3;
+        let runwayCurrent_num = (Math.log(treasury_runway) / Math.log(1+nextEpochRebase_number));
 
         runway2dot5k = BigDecimal.fromString(runway2dot5k_num.toString())
         runway5k = BigDecimal.fromString(runway5k_num.toString())
