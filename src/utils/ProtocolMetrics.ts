@@ -7,7 +7,7 @@ import { UniswapV2Pair } from '../../generated/OlympusStakingV2/UniswapV2Pair';
 import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakingV2';
 
 import { ProtocolMetric, Transaction } from '../../generated/schema'
-import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT } from './Constants';
+import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT, MAI_ERC20_CONTRACT } from './Constants';
 import { dayFromTimestamp } from './Dates';
 import { toDecimal } from './Decimals';
 import { getOHMUSDRate, getDiscountedPairUSD, getPairUSD, getETHUSDRate } from './Price';
@@ -88,6 +88,7 @@ class ITreasury {
     wethValue: BigDecimal;
     ohmdaiPOL: BigDecimal;
     gOhmBalance: BigDecimal;
+    maiBalance: BigDecimal;
 }
 
 function getMV_RFV(transaction: Transaction): ITreasury{
@@ -110,7 +111,10 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     const gOhmContract = GOhmERC20.bind(Address.fromString(GOHM_ERC20_CONTRACT))
     const gOhmBalance = toDecimal(gOhmContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), 18)
 
-    let stableValue = daiBalance
+    const maiERC20 = ERC20.bind(Address.fromString(MAI_ERC20_CONTRACT))
+    const maiBalance = maiERC20.balanceOf(Address.fromString(treasury_address))
+
+    let stableValue = daiBalance.plus(maiBalance)
     let stableValueDecimal = toDecimal(stableValue, 18)
 
     let lpValue = ohmdai_value
@@ -136,6 +140,7 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         wethValue: weth_value,
         ohmdaiPOL,
         gOhmBalance,
+        maiBalance: toDecimal(maiBalance, 18)
     }
 }
 
@@ -237,6 +242,7 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.treasuryWETHMarketValue = mv_rfv.wethValue
     pm.treasuryOhmDaiPOL = mv_rfv.ohmdaiPOL
     pm.treasuryGOhmBalance = mv_rfv.gOhmBalance
+    pm.treasuryMaiBalance = mv_rfv.maiBalance
 
     // Rebase rewards, APY, rebase
     pm.nextDistributedOhm = getNextOHMRebase(transaction)
