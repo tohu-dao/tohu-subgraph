@@ -117,6 +117,8 @@ type ProtocolMetric @entity {
   treasuryWETHMarketValue: BigDecimal!
   treasuryGOhmBalance: BigDecimal
   treasuryMaiBalance: BigDecimal
+  treasuryMonolithTotalPoolValue: BigDecimal
+  treasuryMonolithEachTokenValue: BigDecimal
   currentAPY: BigDecimal!
   runway2dot5k: BigDecimal
   runway5k: BigDecimal

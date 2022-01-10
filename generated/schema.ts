@@ -1226,6 +1226,46 @@ export class ProtocolMetric extends Entity {
     }
   }
 
+  get treasuryMonolithTotalPoolValue(): BigDecimal | null {
+    let value = this.get("treasuryMonolithTotalPoolValue");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithTotalPoolValue(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithTotalPoolValue");
+    } else {
+      this.set(
+        "treasuryMonolithTotalPoolValue",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithEachTokenValue(): BigDecimal | null {
+    let value = this.get("treasuryMonolithEachTokenValue");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithEachTokenValue(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithEachTokenValue");
+    } else {
+      this.set(
+        "treasuryMonolithEachTokenValue",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
   get currentAPY(): BigDecimal {
     let value = this.get("currentAPY");
     return value!.toBigDecimal();

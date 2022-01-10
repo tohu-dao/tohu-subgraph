@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, log} from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, Bytes, log} from '@graphprotocol/graph-ts'
 import { OlympusERC20 } from '../../generated/OlympusStakingV2/OlympusERC20';
 import { sOlympusERC20V2 } from '../../generated/OlympusStakingV2/sOlympusERC20V2';
 import { CirculatingSupply } from '../../generated/OlympusStakingV2/CirculatingSupply';
@@ -7,13 +7,15 @@ import { UniswapV2Pair } from '../../generated/OlympusStakingV2/UniswapV2Pair';
 import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakingV2';
 
 import { ProtocolMetric, Transaction } from '../../generated/schema'
-import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT, MAI_ERC20_CONTRACT } from './Constants';
+import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT, MAI_ERC20_CONTRACT, THEMONOLITHPOOL_CONTRACT, BALANCERVAULT_CONTRACT, MONOLITHPOOLID } from './Constants';
 import { dayFromTimestamp } from './Dates';
 import { toDecimal } from './Decimals';
 import { getOHMUSDRate, getDiscountedPairUSD, getPairUSD, getETHUSDRate } from './Price';
 import { getHolderAux } from './_Aux';
 import { updateBondDiscounts } from './BondDiscounts';
 import { GOhmERC20 } from '../../generated/sOlympusERC20V2/GOhmERC20';
+import { WeightedPool } from '../../generated/OlympusStakingV2/WeightedPool';
+import { BalancerVault } from '../../generated/OlympusStakingV2/BalancerVault';
 
 export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric{
     let dayTimestamp = dayFromTimestamp(timestamp);
@@ -89,6 +91,8 @@ class ITreasury {
     ohmdaiPOL: BigDecimal;
     gOhmBalance: BigDecimal;
     maiBalance: BigDecimal;
+    monolithTotalPoolMv: BigDecimal;
+    monolithEachTokenMv: BigDecimal;
 }
 
 function getMV_RFV(transaction: Transaction): ITreasury{
@@ -114,13 +118,23 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     const maiERC20 = ERC20.bind(Address.fromString(MAI_ERC20_CONTRACT))
     const maiBalance = maiERC20.balanceOf(Address.fromString(treasury_address))
 
+    const monolithPoolContract = WeightedPool.bind(Address.fromString(THEMONOLITHPOOL_CONTRACT))
+    const treasuryMonolithBalance = monolithPoolContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2))
+    const monolithTotalSupply = monolithPoolContract.totalSupply()
+    const treasuryOwnedMonolithRatio = toDecimal(treasuryMonolithBalance, 18).div(toDecimal(monolithTotalSupply, 18))
+
+    const balancerVaultContract = BalancerVault.bind(Address.fromString(BALANCERVAULT_CONTRACT))
+    const maiMonolithTotal = balancerVaultContract.getPoolTokenInfo(Bytes.fromByteArray(Bytes.fromHexString(MONOLITHPOOLID)), Address.fromString(MAI_ERC20_CONTRACT)).value0;
+    const treasuryOwnedMaiMonolith = toDecimal(maiMonolithTotal, 18).times(treasuryOwnedMonolithRatio)
+    const monolithTotalPoolMv = treasuryOwnedMaiMonolith.times(BigDecimal.fromString('5'))
+
     let stableValue = daiBalance.plus(maiBalance)
     let stableValueDecimal = toDecimal(stableValue, 18)
 
     let lpValue = ohmdai_value
     let rfvLpValue = ohmdai_rfv
 
-    let mv = stableValueDecimal.plus(lpValue).plus(weth_value)
+    let mv = stableValueDecimal.plus(lpValue).plus(weth_value).plus(monolithTotalPoolMv)
     let rfv = stableValueDecimal.plus(rfvLpValue)
 
     log.debug("Treasury Market Value {}", [mv.toString()])
@@ -140,7 +154,9 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         wethValue: weth_value,
         ohmdaiPOL,
         gOhmBalance,
-        maiBalance: toDecimal(maiBalance, 18)
+        maiBalance: toDecimal(maiBalance, 18),
+        monolithTotalPoolMv,
+        monolithEachTokenMv: treasuryOwnedMaiMonolith,
     }
 }
 
@@ -243,6 +259,8 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.treasuryOhmDaiPOL = mv_rfv.ohmdaiPOL
     pm.treasuryGOhmBalance = mv_rfv.gOhmBalance
     pm.treasuryMaiBalance = mv_rfv.maiBalance
+    pm.treasuryMonolithEachTokenValue = mv_rfv.monolithEachTokenMv
+    pm.treasuryMonolithTotalPoolValue = mv_rfv.monolithTotalPoolMv
 
     // Rebase rewards, APY, rebase
     pm.nextDistributedOhm = getNextOHMRebase(transaction)
