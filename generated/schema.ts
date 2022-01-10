@@ -1246,8 +1246,8 @@ export class ProtocolMetric extends Entity {
     }
   }
 
-  get treasuryMonolithEachTokenValue(): BigDecimal | null {
-    let value = this.get("treasuryMonolithEachTokenValue");
+  get treasuryMonolithMaiValue(): BigDecimal | null {
+    let value = this.get("treasuryMonolithMaiValue");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -1255,12 +1255,192 @@ export class ProtocolMetric extends Entity {
     }
   }
 
-  set treasuryMonolithEachTokenValue(value: BigDecimal | null) {
+  set treasuryMonolithMaiValue(value: BigDecimal | null) {
     if (!value) {
-      this.unset("treasuryMonolithEachTokenValue");
+      this.unset("treasuryMonolithMaiValue");
     } else {
       this.set(
-        "treasuryMonolithEachTokenValue",
+        "treasuryMonolithMaiValue",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithMaiBalance(): BigDecimal | null {
+    let value = this.get("treasuryMonolithMaiBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithMaiBalance(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithMaiBalance");
+    } else {
+      this.set(
+        "treasuryMonolithMaiBalance",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithExodValue(): BigDecimal | null {
+    let value = this.get("treasuryMonolithExodValue");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithExodValue(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithExodValue");
+    } else {
+      this.set(
+        "treasuryMonolithExodValue",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithExodBalance(): BigDecimal | null {
+    let value = this.get("treasuryMonolithExodBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithExodBalance(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithExodBalance");
+    } else {
+      this.set(
+        "treasuryMonolithExodBalance",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithWsExodValue(): BigDecimal | null {
+    let value = this.get("treasuryMonolithWsExodValue");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithWsExodValue(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithWsExodValue");
+    } else {
+      this.set(
+        "treasuryMonolithWsExodValue",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithWsExodBalance(): BigDecimal | null {
+    let value = this.get("treasuryMonolithWsExodBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithWsExodBalance(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithWsExodBalance");
+    } else {
+      this.set(
+        "treasuryMonolithWsExodBalance",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithWFtmValue(): BigDecimal | null {
+    let value = this.get("treasuryMonolithWFtmValue");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithWFtmValue(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithWFtmValue");
+    } else {
+      this.set(
+        "treasuryMonolithWFtmValue",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithWFtmBalance(): BigDecimal | null {
+    let value = this.get("treasuryMonolithWFtmBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithWFtmBalance(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithWFtmBalance");
+    } else {
+      this.set(
+        "treasuryMonolithWFtmBalance",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithGOhmValue(): BigDecimal | null {
+    let value = this.get("treasuryMonolithGOhmValue");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithGOhmValue(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithGOhmValue");
+    } else {
+      this.set(
+        "treasuryMonolithGOhmValue",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
+    }
+  }
+
+  get treasuryMonolithGOhmBalance(): BigDecimal | null {
+    let value = this.get("treasuryMonolithGOhmBalance");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryMonolithGOhmBalance(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryMonolithGOhmBalance");
+    } else {
+      this.set(
+        "treasuryMonolithGOhmBalance",
         Value.fromBigDecimal(<BigDecimal>value)
       );
     }

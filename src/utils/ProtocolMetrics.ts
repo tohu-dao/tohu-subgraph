@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, Bytes, log} from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, ByteArray, Bytes, log} from '@graphprotocol/graph-ts'
 import { OlympusERC20 } from '../../generated/OlympusStakingV2/OlympusERC20';
 import { sOlympusERC20V2 } from '../../generated/OlympusStakingV2/sOlympusERC20V2';
 import { CirculatingSupply } from '../../generated/OlympusStakingV2/CirculatingSupply';
@@ -7,7 +7,7 @@ import { UniswapV2Pair } from '../../generated/OlympusStakingV2/UniswapV2Pair';
 import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakingV2';
 
 import { ProtocolMetric, Transaction } from '../../generated/schema'
-import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT, MAI_ERC20_CONTRACT, THEMONOLITHPOOL_CONTRACT, BALANCERVAULT_CONTRACT, MONOLITHPOOLID } from './Constants';
+import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT, MAI_ERC20_CONTRACT, THEMONOLITHPOOL_CONTRACT, BALANCERVAULT_CONTRACT, MONOLITHPOOLID, WSOHM_ERC20_CONTRACT } from './Constants';
 import { dayFromTimestamp } from './Dates';
 import { toDecimal } from './Decimals';
 import { getOHMUSDRate, getDiscountedPairUSD, getPairUSD, getETHUSDRate } from './Price';
@@ -92,7 +92,17 @@ class ITreasury {
     gOhmBalance: BigDecimal;
     maiBalance: BigDecimal;
     monolithTotalPoolMv: BigDecimal;
-    monolithEachTokenMv: BigDecimal;
+    monolithMaiValue: BigDecimal;
+    monolithMaiBalance: BigDecimal;
+    monolithExodValue: BigDecimal;
+    monolithExodBalance: BigDecimal;
+    monolithWsExodValue: BigDecimal;
+    monolithWsExodBalance: BigDecimal;
+    monolithWFtmValue: BigDecimal;
+    monolithWFtmBalance: BigDecimal;
+    monolithGOhmValue: BigDecimal;
+    monolithGOhmBalance: BigDecimal;
+    index: BigDecimal;
 }
 
 function getMV_RFV(transaction: Transaction): ITreasury{
@@ -118,15 +128,47 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     const maiERC20 = ERC20.bind(Address.fromString(MAI_ERC20_CONTRACT))
     const maiBalance = maiERC20.balanceOf(Address.fromString(treasury_address))
 
+    let indexContract = OlympusStakingV2.bind(Address.fromString(STAKING_CONTRACT_V2));
+    const index = toDecimal(indexContract.index(), 9);
+
     const monolithPoolContract = WeightedPool.bind(Address.fromString(THEMONOLITHPOOL_CONTRACT))
     const treasuryMonolithBalance = monolithPoolContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2))
     const monolithTotalSupply = monolithPoolContract.totalSupply()
     const treasuryOwnedMonolithRatio = toDecimal(treasuryMonolithBalance, 18).div(toDecimal(monolithTotalSupply, 18))
 
     const balancerVaultContract = BalancerVault.bind(Address.fromString(BALANCERVAULT_CONTRACT))
-    const maiMonolithTotal = balancerVaultContract.getPoolTokenInfo(Bytes.fromByteArray(Bytes.fromHexString(MONOLITHPOOLID)), Address.fromString(MAI_ERC20_CONTRACT)).value0;
-    const treasuryOwnedMaiMonolith = toDecimal(maiMonolithTotal, 18).times(treasuryOwnedMonolithRatio)
-    const monolithTotalPoolMv = treasuryOwnedMaiMonolith.times(BigDecimal.fromString('5'))
+    const monolithPoolTokens = balancerVaultContract.getPoolTokens(Bytes.fromByteArray(Bytes.fromHexString(MONOLITHPOOLID)));
+    const monolithAddresses = monolithPoolTokens.value0
+    const monolithBalances = monolithPoolTokens.value1
+    
+    const exodPrice = getOHMUSDRate();
+    let monolithMaiValue: BigDecimal;
+    let monolithMaiBalance: BigDecimal;
+    let monolithExodValue: BigDecimal;
+    let monolithExodBalance: BigDecimal;
+    let monolithWsExodValue: BigDecimal;
+    let monolithWsExodBalance: BigDecimal;
+    let monolithWFtmValue: BigDecimal;
+    let monolithWFtmBalance: BigDecimal;
+    for (let i=0; i<monolithAddresses.length; i++) {
+        if (monolithAddresses[i].equals(ByteArray.fromHexString(MAI_ERC20_CONTRACT))) {
+            monolithMaiBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithMaiValue = monolithMaiBalance
+        } else if (monolithAddresses[i].equals(ByteArray.fromHexString(OHM_ERC20_CONTRACT))) {
+            monolithExodBalance = toDecimal(monolithBalances[i], 9).times(treasuryOwnedMonolithRatio)
+            monolithExodValue = monolithExodBalance.times(exodPrice)
+        } else if (monolithAddresses[i].equals(ByteArray.fromHexString(WSOHM_ERC20_CONTRACT))) {
+            monolithWsExodBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithWsExodValue = monolithWsExodBalance.times(index).times(exodPrice)
+        } else if (monolithAddresses[i].equals(ByteArray.fromHexString(WETH_ERC20_CONTRACT))) {
+            monolithWFtmBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithWFtmValue = monolithWFtmBalance.times(getETHUSDRate())
+        }
+    }
+    const monolithGOhmBalance = monolithMaiBalance
+    const monolithGOhmValue = monolithMaiValue
+
+    const monolithTotalPoolMv = monolithMaiValue.plus(monolithExodValue).plus(monolithWsExodValue).plus(monolithWFtmValue).plus(monolithGOhmValue)
 
     let stableValue = daiBalance.plus(maiBalance)
     let stableValueDecimal = toDecimal(stableValue, 18)
@@ -156,7 +198,17 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         gOhmBalance,
         maiBalance: toDecimal(maiBalance, 18),
         monolithTotalPoolMv,
-        monolithEachTokenMv: treasuryOwnedMaiMonolith,
+        monolithMaiValue,
+        monolithMaiBalance,
+        monolithExodValue,
+        monolithExodBalance,
+        monolithWsExodValue,
+        monolithWsExodBalance,
+        monolithWFtmValue,
+        monolithWFtmBalance,
+        monolithGOhmValue,
+        monolithGOhmBalance,
+        index,
     }
 }
 
@@ -259,8 +311,17 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.treasuryOhmDaiPOL = mv_rfv.ohmdaiPOL
     pm.treasuryGOhmBalance = mv_rfv.gOhmBalance
     pm.treasuryMaiBalance = mv_rfv.maiBalance
-    pm.treasuryMonolithEachTokenValue = mv_rfv.monolithEachTokenMv
     pm.treasuryMonolithTotalPoolValue = mv_rfv.monolithTotalPoolMv
+    pm.treasuryMonolithMaiValue = mv_rfv.monolithMaiValue
+    pm.treasuryMonolithMaiBalance = mv_rfv.monolithMaiBalance
+    pm.treasuryMonolithExodValue = mv_rfv.monolithExodValue
+    pm.treasuryMonolithExodBalance = mv_rfv.monolithExodBalance
+    pm.treasuryMonolithWsExodValue = mv_rfv.monolithWsExodValue
+    pm.treasuryMonolithWsExodBalance = mv_rfv.monolithWsExodBalance
+    pm.treasuryMonolithWFtmValue = mv_rfv.monolithWFtmValue
+    pm.treasuryMonolithWFtmBalance = mv_rfv.monolithWFtmBalance
+    pm.treasuryMonolithGOhmValue = mv_rfv.monolithGOhmValue
+    pm.treasuryMonolithGOhmBalance = mv_rfv.monolithGOhmBalance
 
     // Rebase rewards, APY, rebase
     pm.nextDistributedOhm = getNextOHMRebase(transaction)
@@ -283,8 +344,7 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     //Holders
     pm.holders = getHolderAux().value
 
-    let indexContract = OlympusStakingV2.bind(Address.fromString(STAKING_CONTRACT_V2));
-    pm.index = toDecimal(indexContract.index(), 9);
+    pm.index = mv_rfv.index
 
     pm.save()
 
