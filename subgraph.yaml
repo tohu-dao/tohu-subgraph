@@ -2,8 +2,7 @@ specVersion: 0.0.2
 description: Exodia DAO Subgraph
 graft:
   base: QmQe4pwHd6eEAXwTV3Gs1KVzbRwkjqHbxveFb1dktBi7Uq
-  #can change to block when mai is added to treasury
-  block: 27249605
+  block: 27463550
 repository: https://github.com/ExodiaFinance/exodia-subgraph
 schema:
   file: ./schema.graphql
@@ -44,7 +43,11 @@ dataSources:
         - name: ERC20
           file: ./abis/ERC20.json
         - name: GOhmERC20
-          file: ./abis/GOhmERC20.json          
+          file: ./abis/GOhmERC20.json
+        - name: WeightedPool
+          file: ./abis/WeightedPool.json
+        - name: BalancerVault
+          file: ./abis/BalancerVault.json
       callHandlers:
         - function: stake(uint256,address)
           handler: handleStake
