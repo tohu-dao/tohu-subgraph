@@ -90,6 +90,7 @@ class ITreasury {
     wethValue: BigDecimal;
     ohmdaiPOL: BigDecimal;
     gOhmBalance: BigDecimal;
+    gOhmValue: BigDecimal;
     maiBalance: BigDecimal;
     monolithTotalPoolMv: BigDecimal;
     monolithMaiValue: BigDecimal;
@@ -122,11 +123,12 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     let ohmdaiPOL = toDecimal(ohmdaiBalance, 18).div(ohmdaiTotalLP).times(BigDecimal.fromString("100"))
     let ohmdai_value = getPairUSD(ohmdaiBalance, SLP_EXODDAI_PAIR)
     let ohmdai_rfv = getDiscountedPairUSD(ohmdaiBalance, SLP_EXODDAI_PAIR)
-    const gOhmContract = GOhmERC20.bind(Address.fromString(GOHM_ERC20_CONTRACT))
-    const gOhmBalance = toDecimal(gOhmContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), 18)
 
     const maiERC20 = ERC20.bind(Address.fromString(MAI_ERC20_CONTRACT))
     const maiBalance = maiERC20.balanceOf(Address.fromString(treasury_address))
+
+    const gOhmContract = GOhmERC20.bind(Address.fromString(GOHM_ERC20_CONTRACT))
+    const gOhmBalance = toDecimal(gOhmContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), 18);
 
     let indexContract = OlympusStakingV2.bind(Address.fromString(STAKING_CONTRACT_V2));
     const index = toDecimal(indexContract.index(), 9);
@@ -140,7 +142,7 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     const monolithPoolTokens = balancerVaultContract.getPoolTokens(Bytes.fromByteArray(Bytes.fromHexString(MONOLITHPOOLID)));
     const monolithAddresses = monolithPoolTokens.value0
     const monolithBalances = monolithPoolTokens.value1
-    
+
     const exodPrice = getOHMUSDRate();
     let monolithMaiValue: BigDecimal;
     let monolithMaiBalance: BigDecimal;
@@ -150,6 +152,8 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     let monolithWsExodBalance: BigDecimal;
     let monolithWFtmValue: BigDecimal;
     let monolithWFtmBalance: BigDecimal;
+    let monolithGOhmBalance: BigDecimal;
+    let monolithGOhmValue: BigDecimal;
     for (let i=0; i<monolithAddresses.length; i++) {
         if (monolithAddresses[i].equals(ByteArray.fromHexString(MAI_ERC20_CONTRACT))) {
             monolithMaiBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
@@ -163,10 +167,13 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         } else if (monolithAddresses[i].equals(ByteArray.fromHexString(WETH_ERC20_CONTRACT))) {
             monolithWFtmBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
             monolithWFtmValue = monolithWFtmBalance.times(getETHUSDRate())
+        } else if (monolithAddresses[i].equals(ByteArray.fromHexString(GOHM_ERC20_CONTRACT))) {
+            monolithGOhmBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
         }
     }
-    const monolithGOhmBalance = monolithMaiBalance
-    const monolithGOhmValue = monolithMaiValue
+    monolithGOhmValue = monolithMaiValue;
+    const gohmPrice = monolithGOhmValue.div(monolithGOhmBalance);
+    const totalGOhmBalance = gOhmBalance.plus(monolithGOhmBalance);
 
     const monolithTotalPoolMv = monolithMaiValue.plus(monolithExodValue).plus(monolithWsExodValue).plus(monolithWFtmValue).plus(monolithGOhmValue)
 
@@ -192,10 +199,11 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         DaiRfv: ohmdai_rfv.plus(toDecimal(daiBalance, 18)),
         // treasuryDaiMarketValue = DAI LP * DAI + aDAI
         DaiMv: ohmdai_value.plus(toDecimal(daiBalance, 18)),
-        wethRfv: weth_value,
-        wethValue: weth_value,
+        wethRfv: weth_value.plus(monolithWFtmValue),
+        wethValue: weth_value.plus(monolithWFtmValue),
         ohmdaiPOL,
-        gOhmBalance,
+        gOhmBalance: totalGOhmBalance,
+        gOhmValue: gohmPrice.times(totalGOhmBalance),
         maiBalance: toDecimal(maiBalance, 18),
         monolithTotalPoolMv,
         monolithMaiValue,
@@ -310,6 +318,7 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.treasuryWETHMarketValue = mv_rfv.wethValue
     pm.treasuryOhmDaiPOL = mv_rfv.ohmdaiPOL
     pm.treasuryGOhmBalance = mv_rfv.gOhmBalance
+    pm.treasuryGOhmMarketValue = mv_rfv.monolithGOhmValue
     pm.treasuryMaiBalance = mv_rfv.maiBalance
     pm.treasuryMonolithTotalPoolValue = mv_rfv.monolithTotalPoolMv
     pm.treasuryMonolithMaiValue = mv_rfv.monolithMaiValue

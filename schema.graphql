@@ -116,6 +116,7 @@ type ProtocolMetric @entity {
   treasuryDaiMarketValue: BigDecimal!
   treasuryWETHMarketValue: BigDecimal!
   treasuryGOhmBalance: BigDecimal
+  treasuryGOhmMarketValue: BigDecimal
   treasuryMaiBalance: BigDecimal
   treasuryMonolithTotalPoolValue: BigDecimal
   treasuryMonolithMaiValue: BigDecimal

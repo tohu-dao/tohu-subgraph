@@ -89,6 +89,8 @@ export class Ohmie extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
+
+    this.set("active", Value.fromBoolean(false));
   }
 
   save(): void {
@@ -1206,6 +1208,26 @@ export class ProtocolMetric extends Entity {
       this.unset("treasuryGOhmBalance");
     } else {
       this.set("treasuryGOhmBalance", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+
+  get treasuryGOhmMarketValue(): BigDecimal | null {
+    let value = this.get("treasuryGOhmMarketValue");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set treasuryGOhmMarketValue(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("treasuryGOhmMarketValue");
+    } else {
+      this.set(
+        "treasuryGOhmMarketValue",
+        Value.fromBigDecimal(<BigDecimal>value)
+      );
     }
   }
 
