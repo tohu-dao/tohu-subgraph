@@ -174,6 +174,7 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     monolithGOhmValue = monolithMaiValue;
     const gohmPrice = monolithGOhmValue.div(monolithGOhmBalance);
     const totalGOhmBalance = gOhmBalance.plus(monolithGOhmBalance);
+    const totalGohmValue = gohmPrice.times(totalGOhmBalance);
 
     const monolithTotalPoolMv = monolithMaiValue.plus(monolithExodValue).plus(monolithWsExodValue).plus(monolithWFtmValue).plus(monolithGOhmValue)
 
@@ -183,7 +184,7 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     let lpValue = ohmdai_value
     let rfvLpValue = ohmdai_rfv
 
-    let mv = stableValueDecimal.plus(lpValue).plus(weth_value).plus(monolithTotalPoolMv)
+    let mv = stableValueDecimal.plus(lpValue).plus(weth_value).plus(gOhmBalance.times(gohmPrice)).plus(monolithTotalPoolMv)
     let rfv = stableValueDecimal.plus(rfvLpValue)
 
     log.debug("Treasury Market Value {}", [mv.toString()])
@@ -203,7 +204,7 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         wethValue: weth_value.plus(monolithWFtmValue),
         ohmdaiPOL,
         gOhmBalance: totalGOhmBalance,
-        gOhmValue: gohmPrice.times(totalGOhmBalance),
+        gOhmValue: totalGohmValue,
         maiBalance: toDecimal(maiBalance, 18),
         monolithTotalPoolMv,
         monolithMaiValue,
