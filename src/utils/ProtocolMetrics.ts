@@ -179,7 +179,7 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     const monolithTotalPoolMv = monolithMaiValue.plus(monolithExodValue).plus(monolithWsExodValue).plus(monolithWFtmValue).plus(monolithGOhmValue)
 
     const totalMaiBalance = maiBalance.plus(monolithMaiBalance);
-    let stableValue = daiBalance.plus(totalMaiBalance);
+    let stableValue = daiBalance.plus(maiBalance);
 
     let lpValue = ohmdai_value
     let rfvLpValue = ohmdai_rfv
@@ -320,7 +320,7 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.treasuryWETHMarketValue = mv_rfv.wethValue
     pm.treasuryOhmDaiPOL = mv_rfv.ohmdaiPOL
     pm.treasuryGOhmBalance = mv_rfv.gOhmBalance
-    pm.treasuryGOhmMarketValue = mv_rfv.monolithGOhmValue
+    pm.treasuryGOhmMarketValue = mv_rfv.gOhmValue
     pm.treasuryMaiBalance = mv_rfv.maiBalance
     pm.treasuryMaiRiskFreeValue = mv_rfv.maiRfv
     pm.treasuryMonolithTotalPoolValue = mv_rfv.monolithTotalPoolMv
