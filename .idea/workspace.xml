@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="207cb2a6-a4b0-4c78-9ede-3068531f66a4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schema.graphql" beforeDir="false" afterPath="$PROJECT_DIR$/schema.graphql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils/ProtocolMetrics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/ProtocolMetrics.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -40,7 +41,7 @@
       <workItem from="1637243094966" duration="12706000" />
       <workItem from="1637334945740" duration="185000" />
       <workItem from="1637425610299" duration="440000" />
-      <workItem from="1641914322834" duration="1912000" />
+      <workItem from="1641914322834" duration="5669000" />
     </task>
     <servers />
   </component>

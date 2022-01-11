@@ -118,6 +118,7 @@ type ProtocolMetric @entity {
   treasuryGOhmBalance: BigDecimal
   treasuryGOhmMarketValue: BigDecimal
   treasuryMaiBalance: BigDecimal
+  treasuryMaiRiskFreeValue: BigDecimal
   treasuryMonolithTotalPoolValue: BigDecimal
   treasuryMonolithMaiValue: BigDecimal
   treasuryMonolithMaiBalance: BigDecimal
