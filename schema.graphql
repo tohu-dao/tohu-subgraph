@@ -141,6 +141,8 @@ type ProtocolMetric @entity {
   runway100k: BigDecimal
   runwayCurrent: BigDecimal
   treasuryOhmDaiPOL: BigDecimal!
+  treasuryMonolithPOL: BigDecimal
+  treasuryAveragePOL: BigDecimal
   holders: BigInt!
   index: BigDecimal!
   ohmMinted: BigDecimal!

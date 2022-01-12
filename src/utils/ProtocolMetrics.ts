@@ -81,6 +81,75 @@ function getSohmSupply(transaction: Transaction): BigDecimal{
     return sohm_supply
 }
 
+class MonolithPool {
+    monolithMaiValue: BigDecimal;
+    monolithMaiBalance: BigDecimal;
+    monolithExodValue: BigDecimal;
+    monolithExodBalance: BigDecimal;
+    monolithWsExodValue: BigDecimal;
+    monolithWsExodBalance: BigDecimal;
+    monolithWFtmValue: BigDecimal;
+    monolithWFtmBalance: BigDecimal;
+    monolithGOhmBalance: BigDecimal;
+    monolithGOhmValue: BigDecimal;
+}
+
+function getMonolithInfo(tokenAddresses: Address[], tokenBalances: BigInt[], treasuryOwnedMonolithRatio: BigDecimal, index: BigDecimal): MonolithPool {
+    const exodPrice = getOHMUSDRate();
+
+    let monolithMaiValue: BigDecimal;
+    let monolithMaiBalance: BigDecimal;
+    let monolithExodValue: BigDecimal;
+    let monolithExodBalance: BigDecimal;
+    let monolithWsExodValue: BigDecimal;
+    let monolithWsExodBalance: BigDecimal;
+    let monolithWFtmValue: BigDecimal;
+    let monolithWFtmBalance: BigDecimal;
+    let monolithGOhmBalance: BigDecimal;
+    let monolithGOhmValue: BigDecimal;
+
+    for (let i=0; i<tokenAddresses.length; i++) {
+        if (tokenAddresses[i].equals(ByteArray.fromHexString(MAI_ERC20_CONTRACT))) {
+            monolithMaiBalance = toDecimal(tokenBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithMaiValue = monolithMaiBalance
+        } else if (tokenAddresses[i].equals(ByteArray.fromHexString(OHM_ERC20_CONTRACT))) {
+            monolithExodBalance = toDecimal(tokenBalances[i], 9).times(treasuryOwnedMonolithRatio)
+            monolithExodValue = monolithExodBalance.times(exodPrice)
+        } else if (tokenAddresses[i].equals(ByteArray.fromHexString(WSOHM_ERC20_CONTRACT))) {
+            monolithWsExodBalance = toDecimal(tokenBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithWsExodValue = monolithWsExodBalance.times(index).times(exodPrice)
+        } else if (tokenAddresses[i].equals(ByteArray.fromHexString(WETH_ERC20_CONTRACT))) {
+            monolithWFtmBalance = toDecimal(tokenBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithWFtmValue = monolithWFtmBalance.times(getETHUSDRate())
+        } else if (tokenAddresses[i].equals(ByteArray.fromHexString(GOHM_ERC20_CONTRACT))) {
+            monolithGOhmBalance = toDecimal(tokenBalances[i], 18).times(treasuryOwnedMonolithRatio)
+        }
+    }
+    monolithGOhmValue = monolithMaiValue
+
+    return {
+        monolithMaiValue,
+        monolithMaiBalance,
+        monolithExodValue,
+        monolithExodBalance,
+        monolithWsExodValue,
+        monolithWsExodBalance,
+        monolithWFtmValue,
+        monolithWFtmBalance,
+        monolithGOhmValue,
+        monolithGOhmBalance,
+    }
+}
+
+function getAveragePol(slpBalance: BigDecimal, slpTotalSupply: BigDecimal, monolithBalance: BigDecimal, monolithTotalSupply: BigDecimal):BigDecimal {
+    return
+        slpBalance.plus(monolithBalance)
+        .div(
+            slpTotalSupply.plus(monolithTotalSupply)
+        )
+        .times(BigDecimal.fromString("100"))
+}
+
 class ITreasury {
     mv: BigDecimal;
     rfv: BigDecimal;
@@ -89,6 +158,8 @@ class ITreasury {
     wethRfv: BigDecimal;
     wethValue: BigDecimal;
     ohmdaiPOL: BigDecimal;
+    monolithPOL: BigDecimal;
+    averagePOL: BigDecimal;
     gOhmBalance: BigDecimal;
     gOhmValue: BigDecimal;
     maiBalance: BigDecimal;
@@ -116,8 +187,8 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     let treasury_address = TREASURY_ADDRESS_V2;
 
     let daiBalance = toDecimal(daiERC20.balanceOf(Address.fromString(treasury_address)), 18)
-    let wethBalance = wethERC20.balanceOf(Address.fromString(treasury_address))
-    let weth_value = toDecimal(wethBalance, 18).times(getETHUSDRate())
+    let wethBalance = toDecimal(wethERC20.balanceOf(Address.fromString(treasury_address)), 18)
+    let weth_value = wethBalance.times(getETHUSDRate())
 
     let ohmdaiBalance = ohmdaiPair.balanceOf(Address.fromString(treasury_address))
     let ohmdaiTotalLP = toDecimal(ohmdaiPair.totalSupply(), 18)
@@ -135,44 +206,30 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     const index = toDecimal(indexContract.index(), 9);
 
     const monolithPoolContract = WeightedPool.bind(Address.fromString(THEMONOLITHPOOL_CONTRACT))
-    const treasuryMonolithBalance = monolithPoolContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2))
-    const monolithTotalSupply = monolithPoolContract.totalSupply()
-    const treasuryOwnedMonolithRatio = toDecimal(treasuryMonolithBalance, 18).div(toDecimal(monolithTotalSupply, 18))
+    const monolithBalance = toDecimal(monolithPoolContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), 18)
+    const monolithTotalSupply = toDecimal(monolithPoolContract.totalSupply(), 18)
+    const treasuryOwnedMonolithRatio = monolithBalance.div(monolithTotalSupply)
+    const monolithPOL = treasuryOwnedMonolithRatio.times(BigDecimal.fromString("100"))
+    const averagePOL = getAveragePol(toDecimal(ohmdaiBalance, 18), ohmdaiTotalLP, monolithBalance, monolithTotalSupply)
 
     const balancerVaultContract = BalancerVault.bind(Address.fromString(BALANCERVAULT_CONTRACT))
     const monolithPoolTokens = balancerVaultContract.getPoolTokens(Bytes.fromByteArray(Bytes.fromHexString(MONOLITHPOOLID)));
     const monolithAddresses = monolithPoolTokens.value0
     const monolithBalances = monolithPoolTokens.value1
 
-    const exodPrice = getOHMUSDRate();
-    let monolithMaiValue: BigDecimal;
-    let monolithMaiBalance: BigDecimal;
-    let monolithExodValue: BigDecimal;
-    let monolithExodBalance: BigDecimal;
-    let monolithWsExodValue: BigDecimal;
-    let monolithWsExodBalance: BigDecimal;
-    let monolithWFtmValue: BigDecimal;
-    let monolithWFtmBalance: BigDecimal;
-    let monolithGOhmBalance: BigDecimal;
-    let monolithGOhmValue: BigDecimal;
-    for (let i=0; i<monolithAddresses.length; i++) {
-        if (monolithAddresses[i].equals(ByteArray.fromHexString(MAI_ERC20_CONTRACT))) {
-            monolithMaiBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
-            monolithMaiValue = monolithMaiBalance
-        } else if (monolithAddresses[i].equals(ByteArray.fromHexString(OHM_ERC20_CONTRACT))) {
-            monolithExodBalance = toDecimal(monolithBalances[i], 9).times(treasuryOwnedMonolithRatio)
-            monolithExodValue = monolithExodBalance.times(exodPrice)
-        } else if (monolithAddresses[i].equals(ByteArray.fromHexString(WSOHM_ERC20_CONTRACT))) {
-            monolithWsExodBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
-            monolithWsExodValue = monolithWsExodBalance.times(index).times(exodPrice)
-        } else if (monolithAddresses[i].equals(ByteArray.fromHexString(WETH_ERC20_CONTRACT))) {
-            monolithWFtmBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
-            monolithWFtmValue = monolithWFtmBalance.times(getETHUSDRate())
-        } else if (monolithAddresses[i].equals(ByteArray.fromHexString(GOHM_ERC20_CONTRACT))) {
-            monolithGOhmBalance = toDecimal(monolithBalances[i], 18).times(treasuryOwnedMonolithRatio)
-        }
-    }
-    monolithGOhmValue = monolithMaiValue;
+    const {
+        monolithMaiValue,
+        monolithMaiBalance,
+        monolithExodValue,
+        monolithExodBalance,
+        monolithWsExodValue,
+        monolithWsExodBalance,
+        monolithGOhmValue,
+        monolithGOhmBalance,
+        monolithWFtmValue,
+        monolithWFtmBalance
+    } = getMonolithInfo(monolithAddresses, monolithBalances, treasuryOwnedMonolithRatio, index)
+
     const gohmPrice = monolithGOhmValue.div(monolithGOhmBalance);
     const totalGOhmBalance = gOhmBalance.plus(monolithGOhmBalance);
     const totalGohmValue = gohmPrice.times(totalGOhmBalance);
@@ -203,6 +260,8 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         wethRfv: weth_value.plus(monolithWFtmValue),
         wethValue: weth_value.plus(monolithWFtmValue),
         ohmdaiPOL,
+        monolithPOL,
+        averagePOL,
         gOhmBalance: totalGOhmBalance,
         gOhmValue: totalGohmValue,
         maiBalance: totalMaiBalance,
@@ -319,6 +378,8 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.treasuryWETHRiskFreeValue = mv_rfv.wethRfv
     pm.treasuryWETHMarketValue = mv_rfv.wethValue
     pm.treasuryOhmDaiPOL = mv_rfv.ohmdaiPOL
+    pm.treasuryMonolithPOL = mv_rfv.monolithPOL
+    pm.treasuryAveragePOL = mv_rfv.averagePOL
     pm.treasuryGOhmBalance = mv_rfv.gOhmBalance
     pm.treasuryGOhmMarketValue = mv_rfv.gOhmValue
     pm.treasuryMaiBalance = mv_rfv.maiBalance
