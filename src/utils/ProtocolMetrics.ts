@@ -142,12 +142,13 @@ function getMonolithInfo(tokenAddresses: Address[], tokenBalances: BigInt[], tre
 }
 
 function getAveragePol(slpBalance: BigDecimal, slpTotalSupply: BigDecimal, monolithBalance: BigDecimal, monolithTotalSupply: BigDecimal):BigDecimal {
-    return
+    return ( 
         slpBalance.plus(monolithBalance)
         .div(
             slpTotalSupply.plus(monolithTotalSupply)
         )
         .times(BigDecimal.fromString("100"))
+    )
 }
 
 class ITreasury {
@@ -217,18 +218,17 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     const monolithAddresses = monolithPoolTokens.value0
     const monolithBalances = monolithPoolTokens.value1
 
-    const {
-        monolithMaiValue,
-        monolithMaiBalance,
-        monolithExodValue,
-        monolithExodBalance,
-        monolithWsExodValue,
-        monolithWsExodBalance,
-        monolithGOhmValue,
-        monolithGOhmBalance,
-        monolithWFtmValue,
-        monolithWFtmBalance
-    } = getMonolithInfo(monolithAddresses, monolithBalances, treasuryOwnedMonolithRatio, index)
+    const monolithInfo = getMonolithInfo(monolithAddresses, monolithBalances, treasuryOwnedMonolithRatio, index)
+    const monolithMaiValue = monolithInfo.monolithMaiValue
+    const monolithMaiBalance = monolithInfo.monolithMaiBalance
+    const monolithExodValue = monolithInfo.monolithExodValue
+    const monolithExodBalance = monolithInfo.monolithExodBalance
+    const monolithWsExodValue = monolithInfo.monolithWsExodValue
+    const monolithWsExodBalance = monolithInfo.monolithWsExodBalance
+    const monolithGOhmValue = monolithInfo.monolithGOhmValue
+    const monolithGOhmBalance = monolithInfo.monolithGOhmBalance
+    const monolithWFtmValue = monolithInfo.monolithWFtmValue
+    const monolithWFtmBalance = monolithInfo.monolithWFtmBalance
 
     const gohmPrice = monolithGOhmValue.div(monolithGOhmBalance);
     const totalGOhmBalance = gOhmBalance.plus(monolithGOhmBalance);
