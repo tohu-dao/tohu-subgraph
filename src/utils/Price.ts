@@ -1,9 +1,15 @@
 import {
-    SLP_EXODDAI_PAIR, SLP_WFTMUSDC_PAIR
+    BALANCERVAULT_CONTRACT,
+    MONOLITHPOOLID,
+    SLP_EXODDAI_PAIR, SLP_WFTMUSDC_PAIR, STAKING_CONTRACT_V2, THEMONOLITHPOOL_CONTRACT, WETH_ERC20_CONTRACT, WSOHM_ERC20_CONTRACT
 } from './Constants'
-import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { UniswapV2Pair } from '../../generated/OlympusStakingV2/UniswapV2Pair';
 import { toDecimal } from './Decimals'
+import { BalancerVault } from '../../generated/OlympusStakingV2/BalancerVault';
+import { WeightedPool } from '../../generated/OlympusStakingV2/WeightedPool';
+import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakingV2';
+import { getMonolithInfo } from './ProtocolMetrics';
 
 
 let BIG_DECIMAL_1E9 = BigDecimal.fromString('1e9')
@@ -76,4 +82,20 @@ export function getPairWETH(lp_amount: BigInt, pair_adress: string): BigDecimal{
     let total_lp_usd = ohm_value.plus(eth_value)
 
     return ownedLP.times(total_lp_usd)
+}
+
+export function getMonolithUSD(bpt_amount: BigInt): BigDecimal {
+    const indexContract = OlympusStakingV2.bind(Address.fromString(STAKING_CONTRACT_V2));
+    const index = toDecimal(indexContract.index(), 9);
+    const monolithPoolContract = WeightedPool.bind(Address.fromString(THEMONOLITHPOOL_CONTRACT))
+    const monolithTotalSupply = toDecimal(monolithPoolContract.totalSupply(), 18)
+    const balancerVaultContract = BalancerVault.bind(Address.fromString(BALANCERVAULT_CONTRACT))
+    const monolithPoolTokens = balancerVaultContract.getPoolTokens(Bytes.fromByteArray(Bytes.fromHexString(MONOLITHPOOLID)));
+    const tokenAddresses = monolithPoolTokens.value0
+    const tokenBalances = monolithPoolTokens.value1
+    const ownedBPT = toDecimal(bpt_amount, 18).div(monolithTotalSupply)
+
+    const monolithInfo = getMonolithInfo(tokenAddresses, tokenBalances, ownedBPT, index)
+
+    return monolithInfo.monolithMaiValue.plus(monolithInfo.monolithExodValue).plus(monolithInfo.monolithWsExodValue).plus(monolithInfo.monolithWFtmValue).plus(monolithInfo.monolithGOhmValue)
 }
