@@ -2,7 +2,7 @@ specVersion: 0.0.2
 description: Exodia DAO Subgraph
 graft:
   base: QmVB75bWzWuGveBUpFc9aQTYhfWQwYz4xdQUZ6HcYtccx4
-  block: 27495398
+  block: 27463550
 repository: https://github.com/ExodiaFinance/exodia-subgraph
 schema:
   file: ./schema.graphql
