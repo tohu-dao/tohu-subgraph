@@ -167,7 +167,9 @@ type BondDiscount @entity {
   dai_discount: BigDecimal!
   ohmdai_discount: BigDecimal!
   eth_discount: BigDecimal!
+  monolith_discount: BigDecimal
   dai_debt_ratio: BigInt!
   ohmdai_debt_ratio: BigInt!
   eth_debt_ratio: BigInt!
+  monolith_debt_ratio: BigInt
 }

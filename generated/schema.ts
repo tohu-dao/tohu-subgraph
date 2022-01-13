@@ -1932,6 +1932,23 @@ export class BondDiscount extends Entity {
     this.set("eth_discount", Value.fromBigDecimal(value));
   }
 
+  get monolith_discount(): BigDecimal | null {
+    let value = this.get("monolith_discount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set monolith_discount(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("monolith_discount");
+    } else {
+      this.set("monolith_discount", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+
   get dai_debt_ratio(): BigInt {
     let value = this.get("dai_debt_ratio");
     return value!.toBigInt();
@@ -1957,5 +1974,22 @@ export class BondDiscount extends Entity {
 
   set eth_debt_ratio(value: BigInt) {
     this.set("eth_debt_ratio", Value.fromBigInt(value));
+  }
+
+  get monolith_debt_ratio(): BigInt | null {
+    let value = this.get("monolith_debt_ratio");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set monolith_debt_ratio(value: BigInt | null) {
+    if (!value) {
+      this.unset("monolith_debt_ratio");
+    } else {
+      this.set("monolith_debt_ratio", Value.fromBigInt(<BigInt>value));
+    }
   }
 }

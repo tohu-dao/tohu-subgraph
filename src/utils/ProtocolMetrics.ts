@@ -94,7 +94,7 @@ class MonolithPool {
     monolithGOhmValue: BigDecimal;
 }
 
-function getMonolithInfo(tokenAddresses: Address[], tokenBalances: BigInt[], treasuryOwnedMonolithRatio: BigDecimal, index: BigDecimal): MonolithPool {
+export function getMonolithInfo(tokenAddresses: Address[], tokenBalances: BigInt[], ownedMonolithRatio: BigDecimal, index: BigDecimal): MonolithPool {
     const exodPrice = getOHMUSDRate();
 
     let monolithMaiValue: BigDecimal;
@@ -110,19 +110,19 @@ function getMonolithInfo(tokenAddresses: Address[], tokenBalances: BigInt[], tre
 
     for (let i=0; i<tokenAddresses.length; i++) {
         if (tokenAddresses[i].equals(ByteArray.fromHexString(MAI_ERC20_CONTRACT))) {
-            monolithMaiBalance = toDecimal(tokenBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithMaiBalance = toDecimal(tokenBalances[i], 18).times(ownedMonolithRatio)
             monolithMaiValue = monolithMaiBalance
         } else if (tokenAddresses[i].equals(ByteArray.fromHexString(OHM_ERC20_CONTRACT))) {
-            monolithExodBalance = toDecimal(tokenBalances[i], 9).times(treasuryOwnedMonolithRatio)
+            monolithExodBalance = toDecimal(tokenBalances[i], 9).times(ownedMonolithRatio)
             monolithExodValue = monolithExodBalance.times(exodPrice)
         } else if (tokenAddresses[i].equals(ByteArray.fromHexString(WSOHM_ERC20_CONTRACT))) {
-            monolithWsExodBalance = toDecimal(tokenBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithWsExodBalance = toDecimal(tokenBalances[i], 18).times(ownedMonolithRatio)
             monolithWsExodValue = monolithWsExodBalance.times(index).times(exodPrice)
         } else if (tokenAddresses[i].equals(ByteArray.fromHexString(WETH_ERC20_CONTRACT))) {
-            monolithWFtmBalance = toDecimal(tokenBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithWFtmBalance = toDecimal(tokenBalances[i], 18).times(ownedMonolithRatio)
             monolithWFtmValue = monolithWFtmBalance.times(getETHUSDRate())
         } else if (tokenAddresses[i].equals(ByteArray.fromHexString(GOHM_ERC20_CONTRACT))) {
-            monolithGOhmBalance = toDecimal(tokenBalances[i], 18).times(treasuryOwnedMonolithRatio)
+            monolithGOhmBalance = toDecimal(tokenBalances[i], 18).times(ownedMonolithRatio)
         }
     }
     monolithGOhmValue = monolithMaiValue

@@ -4,10 +4,11 @@ import { DAIBondV3 } from '../../generated/DAIBondV3/DAIBondV3';
 import { ETHBondV1 } from '../../generated/ETHBondV1/ETHBondV1';
 
 import { BondDiscount, Transaction } from '../../generated/schema'
-import { DAIBOND_CONTRACTS3, DAIBOND_CONTRACTS3_BLOCK, ETHBOND_CONTRACT1, ETHBOND_CONTRACT1_BLOCK, OHMDAISLPBOND_CONTRACT4, OHMDAISLPBOND_CONTRACT4_BLOCK, } from './Constants';
+import { DAIBOND_CONTRACTS3, DAIBOND_CONTRACTS3_BLOCK, ETHBOND_CONTRACT1, ETHBOND_CONTRACT1_BLOCK, MONOLITHBOND_CONTRACT, MONOLITHBOND_CONTRACT_BLOCK, OHMDAISLPBOND_CONTRACT4, OHMDAISLPBOND_CONTRACT4_BLOCK, } from './Constants';
 import { hourFromTimestamp } from './Dates';
 import { toDecimal } from './Decimals';
 import { getOHMUSDRate } from './Price';
+import { MonolithBond } from '../../generated/OlympusStakingV2/MonolithBond';
 
 export function loadOrCreateBondDiscount(timestamp: BigInt): BondDiscount{
     let hourTimestamp = hourFromTimestamp(timestamp);
@@ -75,6 +76,20 @@ export function updateBondDiscounts(transaction: Transaction): void{
             bd.eth_debt_ratio = stdDebtRatioCall.value;
         }
     }
+
+    //MONOLITH
+    if(transaction.blockNumber.gt(BigInt.fromString(MONOLITHBOND_CONTRACT_BLOCK))){
+        let bond = MonolithBond.bind(Address.fromString(MONOLITHBOND_CONTRACT))
+        let price_call = bond.try_bondPriceInUSD()
+        if(price_call.reverted===false && price_call.value.gt(BigInt.fromI32(0))){
+            bd.monolith_discount = ohmRate.div(toDecimal(price_call.value, 18)).minus(BigDecimal.fromString("1")).times(BigDecimal.fromString("100"))
+        }
+        let stdDebtRatioCall = bond.try_standardizedDebtRatio()
+        if(!stdDebtRatioCall.reverted) {
+            bd.monolith_debt_ratio = stdDebtRatioCall.value;
+        }
+    }
+
 
     bd.save()
 }
