@@ -1,8 +1,8 @@
 specVersion: 0.0.2
 description: Exodia DAO Subgraph
 graft:
-  base: QmVB75bWzWuGveBUpFc9aQTYhfWQwYz4xdQUZ6HcYtccx4
-  block: 27463550
+  base: Qmc3KeyDjxawj7QBwJrDgmNt7uf3mghc97RX4m3WTb762h
+  block: 28300476
 repository: https://github.com/ExodiaFinance/exodia-subgraph
 schema:
   file: ./schema.graphql
@@ -50,6 +50,10 @@ dataSources:
           file: ./abis/BalancerVault.json
         - name: MonolithBond
           file: ./abis/MonolithBond.json
+        - name: GOhmBond
+          file: ./abis/GOhmBond.json
+        - name: WeightedPool
+          file: ./abis/WeightedPool.json
       callHandlers:
         - function: stake(uint256,address)
           handler: handleStake
@@ -290,6 +294,10 @@ dataSources:
           file: ./abis/ERC20.json
         - name: MonolithBond
           file: ./abis/MonolithBond.json
+        - name: WeightedPool
+          file: ./abis/WeightedPool.json
+        - name: BalancerVault
+          file: ./abis/BalancerVault.json
       callHandlers:
         - function: deposit(uint256,uint256,address)
           handler: handleDeposit
@@ -298,4 +306,54 @@ dataSources:
       eventHandlers:
         - event: BondCreated(uint256,indexed uint256,indexed uint256,indexed uint256)
           handler: handleBondCreated
-      file: ./src/ETHBondV1.ts
+      file: ./src/MonolithBond.ts
+  #GOHM
+  - kind: ethereum/contract
+    name: GOhmBond
+    network: fantom
+    source:
+      address: '0xcf69Ba319fF0F8e2481dE13d16CE7f74b063533E'
+      abi: GOhmBond
+      startBlock: 28300476
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - GOhmBond
+      abis:
+        - name: OlympusStakingV2
+          file: ./abis/OlympusStakingV2.json
+        - name: sOlympusERC20V2
+          file: ./abis/sOlympusERC20V2.json
+        - name: OlympusERC20
+          file: ./abis/OlympusERC20.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: DAIBondV3
+          file: ./abis/DAIBondV3.json
+        - name: OHMDAIBondV4
+          file: ./abis/OHMDAIBondV4.json
+        - name: ETHBondV1
+          file: ./abis/ETHBondV1.json
+        - name: CirculatingSupply
+          file: ./abis/CirculatingSupply.json
+        - name: BondingCalculator
+          file: ./abis/BondingCalculator.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: MonolithBond
+          file: ./abis/MonolithBond.json
+        - name: GOhmBond
+          file: ./abis/GOhmBond.json
+        - name: GOhmPriceOracle
+          file: ./abis/GOhmPriceOracle.json
+      callHandlers:
+        - function: deposit(uint256,uint256,address)
+          handler: handleDeposit
+        - function: redeem(address,bool)
+          handler: handleRedeem
+      eventHandlers:
+        - event: BondCreated(uint256,indexed uint256,indexed uint256,indexed uint256)
+          handler: handleBondCreated
+      file: ./src/GOhmBond.ts

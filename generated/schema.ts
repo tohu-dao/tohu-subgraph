@@ -89,6 +89,8 @@ export class Ohmie extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
+
+    this.set("active", Value.fromBoolean(false));
   }
 
   save(): void {
@@ -1949,6 +1951,23 @@ export class BondDiscount extends Entity {
     }
   }
 
+  get gOhm_discount(): BigDecimal | null {
+    let value = this.get("gOhm_discount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set gOhm_discount(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("gOhm_discount");
+    } else {
+      this.set("gOhm_discount", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+
   get dai_debt_ratio(): BigInt {
     let value = this.get("dai_debt_ratio");
     return value!.toBigInt();
@@ -1990,6 +2009,23 @@ export class BondDiscount extends Entity {
       this.unset("monolith_debt_ratio");
     } else {
       this.set("monolith_debt_ratio", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get gOhm_debt_ratio(): BigInt | null {
+    let value = this.get("gOhm_debt_ratio");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set gOhm_debt_ratio(value: BigInt | null) {
+    if (!value) {
+      this.unset("gOhm_debt_ratio");
+    } else {
+      this.set("gOhm_debt_ratio", Value.fromBigInt(<BigInt>value));
     }
   }
 }
