@@ -1,5 +1,6 @@
 import {
     BALANCERVAULT_CONTRACT,
+    GOHMPRICEORACLE_CONTRACT,
     MONOLITHPOOLID,
     SLP_EXODDAI_PAIR, SLP_WFTMUSDC_PAIR, STAKING_CONTRACT_V2, THEMONOLITHPOOL_CONTRACT, WETH_ERC20_CONTRACT, WSOHM_ERC20_CONTRACT
 } from './Constants'
@@ -10,6 +11,7 @@ import { BalancerVault } from '../../generated/OlympusStakingV2/BalancerVault';
 import { WeightedPool } from '../../generated/OlympusStakingV2/WeightedPool';
 import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakingV2';
 import { getMonolithInfo } from './ProtocolMetrics';
+import { GOhmPriceOracle } from '../../generated/GOhmBond/GOhmPriceOracle';
 
 
 let BIG_DECIMAL_1E9 = BigDecimal.fromString('1e9')
@@ -98,4 +100,10 @@ export function getMonolithUSD(bpt_amount: BigInt): BigDecimal {
     const monolithInfo = getMonolithInfo(tokenAddresses, tokenBalances, ownedBPT, index)
 
     return monolithInfo.monolithMaiValue.plus(monolithInfo.monolithExodValue).plus(monolithInfo.monolithWsExodValue).plus(monolithInfo.monolithWFtmValue).plus(monolithInfo.monolithGOhmValue)
+}
+
+export function getGOhmUSDRate(): BigDecimal {
+    const oracleContract = GOhmPriceOracle.bind(Address.fromString(GOHMPRICEORACLE_CONTRACT))
+    const price = toDecimal(oracleContract.latestAnswer(), 8)
+    return price;
 }
