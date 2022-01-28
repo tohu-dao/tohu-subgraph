@@ -130,6 +130,8 @@ type ProtocolMetric @entity {
   treasuryMonolithWFtmBalance: BigDecimal
   treasuryMonolithGOhmValue: BigDecimal
   treasuryMonolithGOhmBalance: BigDecimal
+  treasuryfBeetsBalance: BigDecimal
+  treasuryfBeetsValue: BigDecimal
   currentAPY: BigDecimal!
   runway2dot5k: BigDecimal
   runway5k: BigDecimal
@@ -169,9 +171,13 @@ type BondDiscount @entity {
   eth_discount: BigDecimal!
   monolith_discount: BigDecimal
   gOhm_discount: BigDecimal
+  monolithV2_discount: BigDecimal
+  fBeets_discount: BigDecimal
   dai_debt_ratio: BigInt!
   ohmdai_debt_ratio: BigInt!
   eth_debt_ratio: BigInt!
   monolith_debt_ratio: BigInt
   gOhm_debt_ratio: BigInt
+  monolithV2_debt_ratio: BigInt
+  fBeets_debt_ratio: BigInt
 }
