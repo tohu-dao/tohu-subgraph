@@ -7,15 +7,16 @@ import { UniswapV2Pair } from '../../generated/OlympusStakingV2/UniswapV2Pair';
 import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakingV2';
 
 import { ProtocolMetric, Transaction } from '../../generated/schema'
-import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT, MAI_ERC20_CONTRACT, THEMONOLITHPOOL_CONTRACT, BALANCERVAULT_CONTRACT, MONOLITHPOOLID, WSOHM_ERC20_CONTRACT } from './Constants';
+import { CIRCULATING_SUPPLY_CONTRACT, CIRCULATING_SUPPLY_CONTRACT_BLOCK, ERC20DAI_CONTRACT, OHM_ERC20_CONTRACT, SOHM_ERC20_CONTRACTV2, STAKING_CONTRACT_V2, SLP_EXODDAI_PAIR, TREASURY_ADDRESS_V2, WETH_ERC20_CONTRACT, GOHM_ERC20_CONTRACT, MAI_ERC20_CONTRACT, THEMONOLITHPOOL_CONTRACT, BALANCERVAULT_CONTRACT, MONOLITHPOOLID, WSOHM_ERC20_CONTRACT, BEETHOVENXMASTERCHEF_CONTRACT, DAO_ADDRESS, FBEETS_ERC20_CONTRACT } from './Constants';
 import { dayFromTimestamp } from './Dates';
 import { toDecimal } from './Decimals';
-import { getOHMUSDRate, getDiscountedPairUSD, getPairUSD, getETHUSDRate } from './Price';
+import { getOHMUSDRate, getDiscountedPairUSD, getPairUSD, getETHUSDRate, getfBeetsUSDRate } from './Price';
 import { getHolderAux } from './_Aux';
 import { updateBondDiscounts } from './BondDiscounts';
 import { GOhmERC20 } from '../../generated/sOlympusERC20V2/GOhmERC20';
 import { WeightedPool } from '../../generated/OlympusStakingV2/WeightedPool';
 import { BalancerVault } from '../../generated/OlympusStakingV2/BalancerVault';
+import { BeethovenxMasterChef } from '../../generated/OlympusStakingV2/BeethovenxMasterChef';
 
 export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric{
     let dayTimestamp = dayFromTimestamp(timestamp);
@@ -176,6 +177,8 @@ class ITreasury {
     monolithWFtmBalance: BigDecimal;
     monolithGOhmValue: BigDecimal;
     monolithGOhmBalance: BigDecimal;
+    fBeetsBalance: BigDecimal;
+    fBeetsValue: BigDecimal;
     index: BigDecimal;
 }
 
@@ -197,27 +200,41 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     let ohmdai_value = getPairUSD(ohmdaiBalance, SLP_EXODDAI_PAIR)
     let ohmdai_rfv = getDiscountedPairUSD(ohmdaiBalance, SLP_EXODDAI_PAIR)
 
+    //treasury MAI balance
     const maiERC20 = ERC20.bind(Address.fromString(MAI_ERC20_CONTRACT))
     const maiBalance = toDecimal(maiERC20.balanceOf(Address.fromString(treasury_address)),18);
 
+    //treasury gOhm Balance
     const gOhmContract = GOhmERC20.bind(Address.fromString(GOHM_ERC20_CONTRACT))
     const gOhmBalance = toDecimal(gOhmContract.balanceOf(Address.fromString(treasury_address)), 18);
 
     let indexContract = OlympusStakingV2.bind(Address.fromString(STAKING_CONTRACT_V2));
     const index = toDecimal(indexContract.index(), 9);
 
+    //staked monolith balance
+    const beethovenChefContract = BeethovenxMasterChef.bind(Address.fromString(BEETHOVENXMASTERCHEF_CONTRACT))
+    const stakedMonolith = toDecimal(beethovenChefContract.userInfo(BigInt.fromU32(37), Address.fromString(DAO_ADDRESS)).value0, 18)
+
+    //treasury monolith balance
     const monolithPoolContract = WeightedPool.bind(Address.fromString(THEMONOLITHPOOL_CONTRACT))
     const monolithBalance = toDecimal(monolithPoolContract.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), 18)
+
+    //dao wallet monolith lp balance
+    const daoMonolithBalance = toDecimal(monolithPoolContract.balanceOf(Address.fromString(DAO_ADDRESS)), 18)
     const monolithTotalSupply = toDecimal(monolithPoolContract.totalSupply(), 18)
-    const treasuryOwnedMonolithRatio = monolithBalance.div(monolithTotalSupply)
+    const treasuryOwnedMonolithRatio = monolithBalance.plus(stakedMonolith).plus(daoMonolithBalance).div(monolithTotalSupply)
+    
+    //protocol owned liq.
     const monolithPOL = treasuryOwnedMonolithRatio.times(BigDecimal.fromString("100"))
     const averagePOL = getAveragePol(toDecimal(ohmdaiBalance, 18), ohmdaiTotalLP, monolithBalance, monolithTotalSupply)
 
+    //fetch monolith lp constituent tokens details
     const balancerVaultContract = BalancerVault.bind(Address.fromString(BALANCERVAULT_CONTRACT))
     const monolithPoolTokens = balancerVaultContract.getPoolTokens(Bytes.fromByteArray(Bytes.fromHexString(MONOLITHPOOLID)));
     const monolithAddresses = monolithPoolTokens.value0
     const monolithBalances = monolithPoolTokens.value1
 
+    //monolith lp constituent tokens balances and values
     const monolithInfo = getMonolithInfo(monolithAddresses, monolithBalances, treasuryOwnedMonolithRatio, index)
     const monolithMaiValue = monolithInfo.monolithMaiValue
     const monolithMaiBalance = monolithInfo.monolithMaiBalance
@@ -229,10 +246,21 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     const monolithGOhmBalance = monolithInfo.monolithGOhmBalance
     const monolithWFtmValue = monolithInfo.monolithWFtmValue
     const monolithWFtmBalance = monolithInfo.monolithWFtmBalance
-
+    
+    //gOhm total value
     const gohmPrice = monolithGOhmValue.div(monolithGOhmBalance);
     const totalGOhmBalance = gOhmBalance.plus(monolithGOhmBalance);
     const totalGohmValue = gohmPrice.times(totalGOhmBalance);
+
+    //fbeets balance
+    const fBeetsERC20 = ERC20.bind(Address.fromString(FBEETS_ERC20_CONTRACT))
+    const treasuryfBeets = toDecimal(fBeetsERC20.balanceOf(Address.fromString(TREASURY_ADDRESS_V2)), 18)
+    const daofBeets = toDecimal(fBeetsERC20.balanceOf(Address.fromString(DAO_ADDRESS)), 18)
+    const stakedfBeets = toDecimal(beethovenChefContract.userInfo(BigInt.fromU32(22), Address.fromString(DAO_ADDRESS)).value0, 18)
+    const fBeetsBalance = treasuryfBeets.plus(daofBeets).plus(stakedfBeets)
+    const fBeetsValue = fBeetsBalance.times(getfBeetsUSDRate())
+
+    //total monolith pool value
     const monolithTotalPoolMv = monolithMaiValue.plus(monolithExodValue).plus(monolithWsExodValue).plus(monolithWFtmValue).plus(monolithGOhmValue)
 
     const totalMaiBalance = maiBalance.plus(monolithMaiBalance);
@@ -241,7 +269,7 @@ function getMV_RFV(transaction: Transaction): ITreasury{
     let lpValue = ohmdai_value
     let rfvLpValue = ohmdai_rfv
 
-    let mv = stableValue.plus(lpValue).plus(weth_value).plus(gOhmBalance.times(gohmPrice)).plus(monolithTotalPoolMv)
+    let mv = stableValue.plus(lpValue).plus(weth_value).plus(gOhmBalance.times(gohmPrice)).plus(monolithTotalPoolMv).plus(fBeetsValue)
     let rfv = stableValue.plus(rfvLpValue)
 
     log.debug("Treasury Market Value {}", [mv.toString()])
@@ -277,6 +305,8 @@ function getMV_RFV(transaction: Transaction): ITreasury{
         monolithWFtmBalance,
         monolithGOhmValue,
         monolithGOhmBalance,
+        fBeetsBalance,
+        fBeetsValue,
         index,
     }
 }
@@ -395,6 +425,8 @@ export function updateProtocolMetrics(transaction: Transaction): void{
     pm.treasuryMonolithWFtmBalance = mv_rfv.monolithWFtmBalance
     pm.treasuryMonolithGOhmValue = mv_rfv.monolithGOhmValue
     pm.treasuryMonolithGOhmBalance = mv_rfv.monolithGOhmBalance
+    pm.treasuryfBeetsBalance = mv_rfv.fBeetsBalance
+    pm.treasuryfBeetsValue = mv_rfv.fBeetsValue
 
     // Rebase rewards, APY, rebase
     pm.nextDistributedOhm = getNextOHMRebase(transaction)

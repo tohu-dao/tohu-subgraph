@@ -4,12 +4,13 @@ import { DAIBondV3 } from '../../generated/DAIBondV3/DAIBondV3';
 import { ETHBondV1 } from '../../generated/ETHBondV1/ETHBondV1';
 
 import { BondDiscount, Transaction } from '../../generated/schema'
-import { DAIBOND_CONTRACTS3, DAIBOND_CONTRACTS3_BLOCK, ETHBOND_CONTRACT1, ETHBOND_CONTRACT1_BLOCK, GOHMBOND_CONTRACT, GOHMBOND_CONTRACT_BLOCK, MONOLITHBOND_CONTRACT, MONOLITHBOND_CONTRACT_BLOCK, OHMDAISLPBOND_CONTRACT4, OHMDAISLPBOND_CONTRACT4_BLOCK, } from './Constants';
+import { DAIBOND_CONTRACTS3, DAIBOND_CONTRACTS3_BLOCK, ETHBOND_CONTRACT1, ETHBOND_CONTRACT1_BLOCK, FBEETSBOND_CONTRACT, FBEETSBOND_CONTRACT_BLOCK, GOHMBOND_CONTRACT, GOHMBOND_CONTRACT_BLOCK, MONOLITHBONDV2_CONTRACT, MONOLITHBONDV2_CONTRACT_BLOCK, MONOLITHBOND_CONTRACT, MONOLITHBOND_CONTRACT_BLOCK, OHMDAISLPBOND_CONTRACT4, OHMDAISLPBOND_CONTRACT4_BLOCK, } from './Constants';
 import { hourFromTimestamp } from './Dates';
 import { toDecimal } from './Decimals';
 import { getOHMUSDRate } from './Price';
 import { MonolithBond } from '../../generated/OlympusStakingV2/MonolithBond';
 import { GOhmBond } from '../../generated/GOhmBond/GOhmBond';
+import { FBeetsBond } from '../../generated/OlympusStakingV2/FBeetsBond';
 
 export function loadOrCreateBondDiscount(timestamp: BigInt): BondDiscount{
     let hourTimestamp = hourFromTimestamp(timestamp);
@@ -101,6 +102,32 @@ export function updateBondDiscounts(transaction: Transaction): void{
         let stdDebtRatioCall = bond.try_standardizedDebtRatio()
         if(!stdDebtRatioCall.reverted) {
             bd.gOhm_debt_ratio = stdDebtRatioCall.value;
+        }
+    }
+
+    //MONOLITHV2
+    if(transaction.blockNumber.gt(BigInt.fromString(MONOLITHBONDV2_CONTRACT_BLOCK))){
+        let bond = MonolithBond.bind(Address.fromString(MONOLITHBONDV2_CONTRACT))
+        let price_call = bond.try_bondPriceInUSD()
+        if(price_call.reverted===false && price_call.value.gt(BigInt.fromI32(0))){
+            bd.monolithV2_discount = ohmRate.div(toDecimal(price_call.value, 18)).minus(BigDecimal.fromString("1")).times(BigDecimal.fromString("100"))
+        }
+        let stdDebtRatioCall = bond.try_standardizedDebtRatio()
+        if(!stdDebtRatioCall.reverted) {
+            bd.monolithV2_debt_ratio = stdDebtRatioCall.value;
+        }
+    }
+
+    //FBEETS
+    if (transaction.blockNumber.gt(BigInt.fromString(FBEETSBOND_CONTRACT_BLOCK))){
+        let bond = FBeetsBond.bind(Address.fromString(FBEETSBOND_CONTRACT))
+        let price_call = bond.try_bondPriceInUSD()
+        if(price_call.reverted===false && price_call.value.gt(BigInt.fromI32(0))){
+            bd.fBeets_discount = ohmRate.div(toDecimal(price_call.value, 18)).minus(BigDecimal.fromString("1")).times(BigDecimal.fromString("100"))
+        }
+        let stdDebtRatioCall = bond.try_standardizedDebtRatio()
+        if(!stdDebtRatioCall.reverted) {
+            bd.fBeets_debt_ratio = stdDebtRatioCall.value;
         }
     }
 

@@ -1,5 +1,6 @@
 import {
     BALANCERVAULT_CONTRACT,
+    FBEETSPRICEORACLE_CONTRACT,
     GOHMPRICEORACLE_CONTRACT,
     MONOLITHPOOLID,
     SLP_EXODDAI_PAIR, SLP_WFTMUSDC_PAIR, STAKING_CONTRACT_V2, THEMONOLITHPOOL_CONTRACT, WETH_ERC20_CONTRACT, WSOHM_ERC20_CONTRACT
@@ -12,6 +13,7 @@ import { WeightedPool } from '../../generated/OlympusStakingV2/WeightedPool';
 import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakingV2';
 import { getMonolithInfo } from './ProtocolMetrics';
 import { GOhmPriceOracle } from '../../generated/GOhmBond/GOhmPriceOracle';
+import { FBeetsPriceOracle } from '../../generated/FBeetsBond/FBeetsPriceOracle';
 
 
 let BIG_DECIMAL_1E9 = BigDecimal.fromString('1e9')
@@ -104,6 +106,12 @@ export function getMonolithUSD(bpt_amount: BigInt): BigDecimal {
 
 export function getGOhmUSDRate(): BigDecimal {
     const oracleContract = GOhmPriceOracle.bind(Address.fromString(GOHMPRICEORACLE_CONTRACT))
+    const price = toDecimal(oracleContract.latestAnswer(), 8)
+    return price;
+}
+
+export function getfBeetsUSDRate(): BigDecimal {
+    const oracleContract = FBeetsPriceOracle.bind(Address.fromString(FBEETSPRICEORACLE_CONTRACT))
     const price = toDecimal(oracleContract.latestAnswer(), 8)
     return price;
 }
