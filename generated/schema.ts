@@ -2039,6 +2039,23 @@ export class BondDiscount extends Entity {
     }
   }
 
+  get wFtmV2_discount(): BigDecimal | null {
+    let value = this.get("wFtmV2_discount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set wFtmV2_discount(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("wFtmV2_discount");
+    } else {
+      this.set("wFtmV2_discount", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+
   get dai_debt_ratio(): BigInt {
     let value = this.get("dai_debt_ratio");
     return value!.toBigInt();
@@ -2131,6 +2148,23 @@ export class BondDiscount extends Entity {
       this.unset("fBeets_debt_ratio");
     } else {
       this.set("fBeets_debt_ratio", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get wFtmV2_debt_ratio(): BigInt | null {
+    let value = this.get("wFtmV2_debt_ratio");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set wFtmV2_debt_ratio(value: BigInt | null) {
+    if (!value) {
+      this.unset("wFtmV2_debt_ratio");
+    } else {
+      this.set("wFtmV2_debt_ratio", Value.fromBigInt(<BigInt>value));
     }
   }
 }

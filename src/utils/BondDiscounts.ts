@@ -4,7 +4,7 @@ import { DAIBondV3 } from '../../generated/DAIBondV3/DAIBondV3';
 import { ETHBondV1 } from '../../generated/ETHBondV1/ETHBondV1';
 
 import { BondDiscount, Transaction } from '../../generated/schema'
-import { DAIBOND_CONTRACTS3, DAIBOND_CONTRACTS3_BLOCK, ETHBOND_CONTRACT1, ETHBOND_CONTRACT1_BLOCK, FBEETSBOND_CONTRACT, FBEETSBOND_CONTRACT_BLOCK, GOHMBOND_CONTRACT, GOHMBOND_CONTRACT_BLOCK, MONOLITHBONDV2_CONTRACT, MONOLITHBONDV2_CONTRACT_BLOCK, MONOLITHBOND_CONTRACT, MONOLITHBOND_CONTRACT_BLOCK, OHMDAISLPBOND_CONTRACT4, OHMDAISLPBOND_CONTRACT4_BLOCK, } from './Constants';
+import { DAIBOND_CONTRACTS3, DAIBOND_CONTRACTS3_BLOCK, ETHBOND_CONTRACT1, ETHBOND_CONTRACT1_BLOCK, FBEETSBOND_CONTRACT, FBEETSBOND_CONTRACT_BLOCK, GOHMBOND_CONTRACT, GOHMBOND_CONTRACT_BLOCK, MONOLITHBONDV2_CONTRACT, MONOLITHBONDV2_CONTRACT_BLOCK, MONOLITHBOND_CONTRACT, MONOLITHBOND_CONTRACT_BLOCK, OHMDAISLPBOND_CONTRACT4, OHMDAISLPBOND_CONTRACT4_BLOCK, WFTMBONDV2_CONTRACT, WFTMBONDV2_CONTRACT_BLOCK, } from './Constants';
 import { hourFromTimestamp } from './Dates';
 import { toDecimal } from './Decimals';
 import { getOHMUSDRate } from './Price';
@@ -130,6 +130,19 @@ export function updateBondDiscounts(transaction: Transaction): void{
             bd.fBeets_debt_ratio = stdDebtRatioCall.value;
         }
     }
+
+    //WFTMV2
+    if(transaction.blockNumber.gt(BigInt.fromString(WFTMBONDV2_CONTRACT_BLOCK))){
+        let bond = ETHBondV1.bind(Address.fromString(WFTMBONDV2_CONTRACT))
+        let price_call = bond.try_bondPriceInUSD()
+        if(price_call.reverted===false && price_call.value.gt(BigInt.fromI32(0))){
+            bd.wFtmV2_discount = ohmRate.div(toDecimal(price_call.value, 18)).minus(BigDecimal.fromString("1")).times(BigDecimal.fromString("100"))
+        }
+        let stdDebtRatioCall = bond.try_standardizedDebtRatio()
+        if(!stdDebtRatioCall.reverted) {
+            bd.wFtmV2_debt_ratio = stdDebtRatioCall.value;
+        }
+    }    
 
 
     bd.save()
