@@ -173,6 +173,7 @@ type BondDiscount @entity {
   gOhm_discount: BigDecimal
   monolithV2_discount: BigDecimal
   fBeets_discount: BigDecimal
+  wFtmV2_discount: BigDecimal
   dai_debt_ratio: BigInt!
   ohmdai_debt_ratio: BigInt!
   eth_debt_ratio: BigInt!
@@ -180,4 +181,5 @@ type BondDiscount @entity {
   gOhm_debt_ratio: BigInt
   monolithV2_debt_ratio: BigInt
   fBeets_debt_ratio: BigInt
+  wFtmV2_debt_ratio: BigInt
 }

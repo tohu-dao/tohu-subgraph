@@ -1,6 +1,7 @@
 import {
     BALANCERVAULT_CONTRACT,
     FBEETSPRICEORACLE_CONTRACT,
+    FTMPRICEORACLE_CONTRACT,
     GOHMPRICEORACLE_CONTRACT,
     MONOLITHPOOLID,
     SLP_EXODDAI_PAIR, SLP_WFTMUSDC_PAIR, STAKING_CONTRACT_V2, THEMONOLITHPOOL_CONTRACT, WETH_ERC20_CONTRACT, WSOHM_ERC20_CONTRACT
@@ -14,21 +15,15 @@ import { OlympusStakingV2 } from '../../generated/OlympusStakingV2/OlympusStakin
 import { getMonolithInfo } from './ProtocolMetrics';
 import { GOhmPriceOracle } from '../../generated/GOhmBond/GOhmPriceOracle';
 import { FBeetsPriceOracle } from '../../generated/FBeetsBond/FBeetsPriceOracle';
+import { FtmPriceOracle } from '../../generated/WFTMBondV2/FtmPriceOracle';
 
 
 let BIG_DECIMAL_1E9 = BigDecimal.fromString('1e9')
 let BIG_DECIMAL_1E12 = BigDecimal.fromString('1e12')
 
 export function getETHUSDRate(): BigDecimal {
-    let pair = UniswapV2Pair.bind(Address.fromString(SLP_WFTMUSDC_PAIR))
-
-    let reserves = pair.getReserves()
-    let reserve0 = reserves.value0.toBigDecimal()
-    let reserve1 = reserves.value1.toBigDecimal()
-
-    let ethRate = reserve0.div(reserve1).times(BIG_DECIMAL_1E12)
-    log.debug("ETH rate {}", [ethRate.toString()])
-
+    const feed = FtmPriceOracle.bind(Address.fromString(FTMPRICEORACLE_CONTRACT))
+    const ethRate = toDecimal(feed.latestAnswer(), 8)
     return ethRate
 }
 
