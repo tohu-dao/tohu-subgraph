@@ -1,9 +1,9 @@
 specVersion: 0.0.2
-description: Exodia DAO Subgraph
+description: Tohu DAO Subgraph
 graft:
   base: QmRspCo6ekARievWjYG6e6qoLMgUhQF16ZjBvaZJRgMHPU
   block: 29523359
-repository: https://github.com/ExodiaFinance/exodia-subgraph
+repository: https://github.com/tohu-dao/tohu-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -12,7 +12,7 @@ dataSources:
     name: OlympusStakingV2
     network: fantom
     source:
-      address: '0x8b8d40f98a2f14e2dd972b3f2e2a2cc227d1e3be'
+      address: '0xCDdDeaCEeBBb887419F0355109581C967467bda4'
       abi: OlympusStakingV2
       startBlock: 20061075
     mapping:
@@ -187,7 +187,7 @@ dataSources:
         - name: BondingCalculator
           file: ./abis/BondingCalculator.json
         - name: ERC20
-          file: ./abis/ERC20.json       
+          file: ./abis/ERC20.json
       callHandlers:
         - function: deposit(uint256,uint256,address)
           handler: handleDeposit
@@ -307,7 +307,7 @@ dataSources:
         - name: BalancerVault
           file: ./abis/BalancerVault.json
         - name: FtmPriceOracle
-          file: ./abis/FtmPriceOracle.json          
+          file: ./abis/FtmPriceOracle.json
       callHandlers:
         - function: deposit(uint256,uint256,address)
           handler: handleDeposit
@@ -409,7 +409,7 @@ dataSources:
         - name: BalancerVault
           file: ./abis/BalancerVault.json
         - name: FtmPriceOracle
-          file: ./abis/FtmPriceOracle.json          
+          file: ./abis/FtmPriceOracle.json
       callHandlers:
         - function: deposit(uint256,uint256,address)
           handler: handleDeposit
@@ -501,7 +501,7 @@ dataSources:
         - name: OHMDAIBondV4
           file: ./abis/OHMDAIBondV4.json
         - name: ETHBondV1
-          file: ./abis/ETHBondV1.json          
+          file: ./abis/ETHBondV1.json
         - name: WFTMBondV2
           file: ./abis/WFTMBondV2.json
         - name: CirculatingSupply
